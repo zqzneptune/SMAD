@@ -1,0 +1,79 @@
+# CXX_STD = CXX14
+
+# NLopt include path and BH (Boost headers via R package)
+PKG_CXXFLAGS = -Inlopt/api -Inlopt -Inlopt/cobyla -Inlopt/util \
+               -Isaint_common -Isaint_spc -Isaint_int
+PKG_CFLAGS = -Inlopt/api -Inlopt -Inlopt/cobyla -Inlopt/util \
+             -Inlopt/auglag -Inlopt/bobyqa -Inlopt/cdirect -Inlopt/crs \
+             -Inlopt/direct -Inlopt/isres -Inlopt/luksan -Inlopt/mlsl \
+             -Inlopt/mma -Inlopt/neldermead -Inlopt/newuoa -Inlopt/praxis \
+             -Inlopt/slsqp \
+             -DHAVE_COPYSIGN -DHAVE_ISINF -DHAVE_ISNAN -DHAVE_STDINT_H \
+             -DHAVE_UNISTD_H -DHAVE_TIME -DHAVE_GETTIMEOFDAY
+
+# NLopt C sources
+NLOPT_C_SOURCES = \
+  nlopt/api/deprecated.c \
+  nlopt/api/general.c \
+  nlopt/api/optimize.c \
+  nlopt/api/options.c \
+  nlopt/cobyla/cobyla.c \
+  nlopt/auglag/auglag.c \
+  nlopt/bobyqa/bobyqa.c \
+  nlopt/cdirect/cdirect.c \
+  nlopt/cdirect/hybrid.c \
+  nlopt/crs/crs.c \
+  nlopt/direct/DIRect.c \
+  nlopt/direct/direct_wrap.c \
+  nlopt/direct/DIRserial.c \
+  nlopt/direct/DIRsubrout.c \
+  nlopt/isres/isres.c \
+  nlopt/luksan/mssubs.c \
+  nlopt/luksan/plip.c \
+  nlopt/luksan/plis.c \
+  nlopt/luksan/pnet.c \
+  nlopt/luksan/pssubs.c \
+  nlopt/mlsl/mlsl.c \
+  nlopt/mma/ccsa_quadratic.c \
+  nlopt/mma/mma.c \
+  nlopt/neldermead/nldrmd.c \
+  nlopt/neldermead/sbplx.c \
+  nlopt/newuoa/newuoa.c \
+  nlopt/praxis/praxis.c \
+  nlopt/slsqp/slsqp.c \
+  nlopt/util/mt19937ar.c \
+  nlopt/util/qsort_r.c \
+  nlopt/util/redblack.c \
+  nlopt/util/rescale.c \
+  nlopt/util/sobolseq.c \
+  nlopt/util/stop.c \
+  nlopt/util/timer.c
+
+# SAINT common C++ sources
+SAINT_COMMON_SOURCES = \
+  saint_common/BaitClass.cpp \
+  saint_common/PreyClass.cpp \
+  saint_common/InterClass.cpp \
+  saint_common/UIClass.cpp
+
+# SAINT-spc C++ sources
+SAINT_SPC_SOURCES = \
+  saint_spc/SpcStats.cpp \
+  saint_spc/SpcStats_fns.cpp \
+  saint_spc/SpcMapping.cpp \
+  SpcEntry.cpp
+
+# SAINT-int C++ sources
+SAINT_INT_SOURCES = \
+  saint_int/IntStats.cpp \
+  saint_int/IntMapping.cpp \
+  IntEntry.cpp
+
+# Existing SMAD sources
+SMAD_SOURCES = \
+  GetDICE.cpp \
+  GetPPN.cpp \
+  RcppExports.cpp
+
+SOURCES = $(NLOPT_C_SOURCES) $(SAINT_COMMON_SOURCES) $(SAINT_SPC_SOURCES) $(SAINT_INT_SOURCES) $(SMAD_SOURCES)
+OBJECTS = $(NLOPT_C_SOURCES:.c=.o) $(SAINT_COMMON_SOURCES:.cpp=.o) $(SAINT_SPC_SOURCES:.cpp=.o) $(SAINT_INT_SOURCES:.cpp=.o) $(SMAD_SOURCES:.cpp=.o)

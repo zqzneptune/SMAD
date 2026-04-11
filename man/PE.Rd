@@ -7,32 +7,32 @@
 PE(datInput, rBait = 0.37, cntPseudo = 1)
 }
 \arguments{
-\item{datInput}{A dataframe with column names: idRun, idBait, idPrey, 
-Each row represent one unique protein captured in one pull-down 
-experiment.}
+\item{datInput}{data.frame with columns: idRun, idBait, idPrey}
 
-\item{rBait}{The value of the 'r' parameter as desribed in the publication.}
+\item{rBait}{probability a true interaction is detected (default 0.37)}
 
-\item{cntPseudo}{The value of the 'pseudo count' parameter.}
+\item{cntPseudo}{pseudocount for prey frequency estimation (default 1)}
 }
 \value{
-A dataframe consists of protein-protein interactions from both Spoke 
-and Matrix model.
+data.frame with columns: PPI, InteractorA, InteractorB, BP, PB,
+        spokeBP, spokePB, matrixPP, PE
 }
 \description{
-PE
-Incorporated both spoke and matrix model.
+Purification Enrichment (PE) Score Calculation
+}
+\details{
+Computes PE scores for protein-protein interactions from AP-MS data.
+Based on Collins et al. (2007) Bayes classifier framework.
 }
 \examples{
 data(TestDatInput)
-datScore <- PE(TestDatInput, 0.37, 1)
+datScore <- PE(TestDatInput)
 head(datScore)
 }
 \references{
-Collins, Sean R., et al. "Toward a comprehensive atlas of the 
-physical interactome of Saccharomyces cerevisiae." 
-Molecular & Cellular Proteomics 6.3 (2007): 439-450.
-\url{https://doi.org/10.1074/mcp.M600381-MCP200}
+Collins, S.R., et al. "Toward a comprehensive autophagy 
+            protein-protein interaction network." 
+            Molecular systems biology 3.1 (2007): 88.
 }
 \author{
 Qingzhou Zhang, \email{zqzneptune@hotmail.com}

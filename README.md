@@ -1,99 +1,105 @@
 # Statistical Modelling of AP-MS Data (SMAD)
 
-This R package implements statistical modelling of affinity purification–mass spectrometry (AP-MS) data to compute confidence scores to identify *bona fide* protein-protein interactions (PPI).
+[![Bioc Release](https://www.bioconductor.org/shields/build/release/bioc/SMAD.svg)](https://www.bioconductor.org/checkResults/release/bioc-LATEST/SMAD/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+The `SMAD` package implements statistical modelling of affinity purification–mass spectrometry (AP-MS) data to compute confidence scores for identifying *bona fide* protein-protein interactions (PPI). By assigning probability scores, `SMAD` facilitates the removal of non-specific background contaminants commonly found in proteomics data.
+
+## Key Features
+
+- **Multiple Scoring Models**: Support for validated algorithms including CompPASS, HGScore, SAINTexpress, PE, DICE, and Hart.
+- **Spoke & Matrix Models**: Flexibility to work with different topological interpretations of AP-MS data.
+- **Bioconductor Integration**: Built to standard proteomics community requirements.
+- **User-Friendly API**: Consistent interface across different scoring methods.
 
 ## Installation
 
-The development version can be installed through github:
-```{r}
- devtools::install_github(repo="zqzneptune/SMAD")
- library(SMAD)
-```
-## Input Data
-A demo data.frame was provided as a hint how the input data should strcutured in order to run the scoring functions:
+### From Bioconductor (Recommended)
 
-```{r}
+To install the stable version from Bioconductor:
+
+```r
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("SMAD")
+```
+
+### From GitHub (Development Version)
+
+To install the latest development version:
+
+```r
+if (!require("devtools", quietly = TRUE))
+    install.packages("devtools")
+
+devtools::install_github("zqzneptune/SMAD")
+```
+
+## Input Data Format
+
+`SMAD` requires input data as a standard `data.frame`. A built-in dataset `TestDatInput` is provided to demonstrate the required structure:
+
+```r
+library(SMAD)
 data(TestDatInput)
-colnames(TestDataInput)
-
-[1] "idRun" "idBait" "idPrey" "countPrey" "lenPrey" 
+head(TestDatInput)
 ```
 
-|idRun|idBait|idPrey|countPrey|lenPrey|
-|-----|:----:|:----:|:-------:|-------|
-|Unique ID of one AP-MS run|Bait ID|Prey ID|Prey peptide count|Protein sequence length of the prey|
+| Column | Description | Required For |
+|:---:|:---|:---|
+| **idRun** | Unique identifier for each AP-MS run | All methods |
+| **idBait** | Identifier for the bait protein | CompPASS, PE, SAINT |
+| **idPrey** | Identifier for the identified prey protein | All methods |
+| **countPrey** | Prey quantitative measure (e.g., spectral counts) | CompPASS, HG, SAINT |
+| **lenPrey** | Protein sequence length of the prey | HG, SAINT |
 
-In case of duplcates, a suffix or prefix of e.g. "A", "B" could be added to **idRun** in order to make **"idRun-idBait"** combination unique to each replicate.
+*Tip: For replicates, ensure **idRun** is unique (e.g., by adding a suffix like "_A", "_B") to uniquely identify each experiment.*
 
-## Run scoring
+## Quick Usage
 
 ### 1. CompPASS
+The Comparative Proteomic Analysis Software Suite (CompPASS) identifies high-confidence interactors by comparing occurrences across multiple experiments.
 
-Comparative Proteomic Analysis Software Suite (CompPASS) is based on spoke model. This algorithm was developed by Dr. Mathew Sowa for defining the human deubiquitinating enzyme interaction landscape [(Sowa, Mathew E., et al., 2009)][1]. The implementation of this algorithm was inspired by Dr. Sowa's [online tutorial][2]. The output includes Z-score, S-score, D-score and WD-score. In its implementation in BioPlex 1.0 [(Huttlin, Edward L., et al., 2015)][3] and 
-BioPlex 2.0 [(Huttlin, Edward L., et al., 2017)][4], a naive 
-Bayes classifier that learns to distinguish true interacting proteins from 
-non-specific background and false positive identifications was included in the 
-compPASS pipline. This function was optimized from the [source code][5].
-
-The input data.frame, *datInput*, should include:**idRun**, **idBait**, **idPrey** and **countPrey**.
-
-```{r}
-datScore <- CompPASS(datInput)
+```r
+# Returns scores including WD-score, Z-score, S-score, and D-score
+datScore <- CompPASS(TestDatInput)
 ```
 
-### 2. DICE
+### 2. HGScore
+Based on a hypergeometric distribution error model incorporating NSAF for length normalization.
 
-The Dice coefficient is used to score the interaction scores across prey pair-wise combinations, which was proposed by [(Bing Zhang et al., 2008)][9]
-
-The input data.frame, *datInput*, should include:**idRun** and **idPrey**.
-
-```{r}
-datScore <- DICE(datInput)
+```r
+datScore <- HG(TestDatInput)
 ```
 
-### 3. Hart
+### 3. SAINTexpress
+An integrated version of the widely used SAINT algorithm for significance analysis of interactomes.
 
-Hart scoring algorithm is based on a hypergeometric distribution error model [(Hart et al., 2007)][6].
-
-The input data.frame, *datInput*, should include:**idRun** and **idPrey**.
-
-```{r}
-datScore <- Hart(datInput)
+```r
+# Supporting both spectral counts (spc) and intensities (int)
+# See ?SAINTexpress_spc for detailed parameter documentation
 ```
 
+## Documentation
 
-### 4. HGScore
+For detailed information on the scoring algorithms and more examples, please refer to the package vignettes:
 
-HGScore algorithm is based on a hypergeometric distribution error model [(Hart et al., 2007)][6] with incorporation of NSAF [(Zybailov, Boris, et al., 2006)][7]. This algorithm was first introduced to predict the protein complex network of Drosophila melanogaster [(Guruharsha, K. G., et al., 2011)][8]. This scoring algorithm was based on matrix model. 
-
-The input data.frame, *datInput*, should include:**idRun**, **idPrey**, **countPrey** and **lenPrey**.
-
-```{r}
-datScore <- HG(datInput)
-```
-
-### 5. PE
-PE incorporated both spoke and matrix model as repored in [(Sean R. Collins, et al., 2007)][10].
-
-The input data.frame, *datInput*, should include:**idRun**, **idBait** and **idPrey**.
-
-```{r}
-datScore <- PE(datInput)
-```
-
-
+- **Introduction to SMAD**: `vignette("quickstart", package = "SMAD")`
+- **Detailed Scoring Functions**: `vignette("scoring_functions", package = "SMAD")`
 
 ## License
 
-MIT @ Qingzhou Zhang
+`SMAD` is released under the **MIT License**.
 
-[1]: https://doi.org/10.1016/j.cell.2009.04.042
-[2]: http://besra.hms.harvard.edu/ipmsmsdbs/cgi-bin/tutorial.cgi
-[3]: https://doi.org/10.1016/j.cell.2015.06.043
-[4]: https://www.nature.com/articles/nature22366
-[5]: https://github.com/dnusinow/cRomppass
-[6]: https://doi.org/10.1186/1471-2105-8-236
-[7]: https://doi.org/10.1021/pr060161n
-[8]: https://doi.org/10.1016/j.cell.2011.08.047
-[9]: https://doi.org/10.1093/bioinformatics/btn036
-[10]: https://doi.org/10.1074/mcp.M600381-MCP200
+© 2018-2024 Qingzhou Zhang
+
+---
+
+### References
+
+- **CompPASS**: Sowa et al. (2009) [Cell 138(2):389-403](https://doi.org/10.1016/j.cell.2009.04.042)
+- **HGScore**: Hart et al. (2007) [BMC Bioinformatics 8:236](https://doi.org/10.1186/1471-2105-8-236)
+- **DICE**: Zhang et al. (2008) [Bioinformatics 24(7):979–986](https://doi.org/10.1093/bioinformatics/btn036)
+- **PE**: Collins et al. (2007) [Mol Syst Biol 3:88](https://doi.org/10.1038/msb4100128)
+- **SAINTexpress**: Teo et al. (2014) [J Proteomics 100:37-43](https://doi.org/10.1016/j.jprot.2013.11.004)

@@ -37,6 +37,7 @@
 #' @importFrom dplyr left_join
 #' @importFrom dplyr filter
 #' @importFrom dplyr n
+#' @importFrom dplyr ungroup
 #' @importFrom tidyr spread
 #' @importFrom magrittr %>%
 #' @importFrom stats quantile
@@ -46,19 +47,7 @@
 #' datScore <- CompPASS(TestDatInput)
 #' head(datScore)
 CompPASS <- function(datInput){
-    colInput <-
-        c("idRun", "idBait", "idPrey", "countPrey")
-    
-    if(!is.data.frame(datInput)){
-        stop("Input data should be data.frame")
-    }
-    
-    if(!all(colInput %in% colnames(datInput))){
-        missingCol <-
-            setdiff(colInput, 
-                    colnames(datInput)[match(colInput, colnames(datInput))])
-        stop("Input data missing: ", paste(missingCol, collapse = ", "))
-    }
+    .CompPASS_validate_input(datInput)
     
     . <- NULL
     idPrey <- NULL
@@ -76,89 +65,26 @@ CompPASS <- function(datInput){
     WD_raw <- NULL
     WD_raw.factor <- NULL
     
-    # Use total number of baits instead of actual AP-MS runs as
-    # total number of experiments.
-    # Multiple runs for the same bait were considered as replicated
-    k <-
-        length(unique(datInput$idBait))
-    # f_sum: number of runs capturing the same prey
-    f <-
-        unique(datInput[, c("idBait", "idPrey")]) %>%
-        group_by(`idPrey`) %>%
-        summarise(`f_sum` = n())
-    # p: number of replicates the bait-prey pair captured
-    p <-
-        datInput[, c("idBait", "idPrey")] %>%
-        group_by(`idBait`, `idPrey`) %>%
-        summarise(`p` = n()) %>%
-        mutate(`BP` = paste(`idBait`, `idPrey`, sep = "~"))
-    # Using MAXIMUM spectral count to compute Entropy
-    e <-
-        datInput %>%
-        group_by(`idBait`, `idPrey`, `idRun`) %>%
-        summarise(`MaxTSC` = max(`countPrey`)) %>% 
-        mutate(`p` = (`MaxTSC` + 1/length(`MaxTSC`))/(sum(`MaxTSC`) + 1)) %>% 
-        mutate(`Entropy` = sum(unlist(lapply(`p`, function(x) {
-            -1*x*log(x, 2) 
-        })))) %>%
-        mutate(`BP` = paste(`idBait`, `idPrey`, sep = "~"))
-    # AvePSM = average speactral counts across replicates.
-    stats <-
-        datInput %>%
-        group_by(`idBait`, `idPrey`) %>%
-        summarise(`AvePSM` = mean(`countPrey`)) %>%
-        mutate(`BP` = paste(`idBait`, `idPrey`, sep = "~"))
-    dat <-
-        stats %>%
-        left_join(., unique(e[, c("BP", "Entropy")]), by = "BP") %>%
-        left_join(., f, by = "idPrey") %>%
-        left_join(., p[, c("BP", "p")], by = "BP") %>%
+    # Pre-calculations
+    k <- length(unique(datInput$idBait))
+    f_stats <- .CompPASS_f_stats(datInput)
+    p_stats <- .CompPASS_p_stats(datInput)
+    entropy_stats <- .CompPASS_entropy_stats(datInput)
+    ave_psm_stats <- .CompPASS_ave_psm_stats(datInput)
+    
+    # Combine stats
+    dat <- ave_psm_stats %>%
+        left_join(., unique(entropy_stats[, c("BP", "Entropy")]), by = "BP") %>%
+        left_join(., f_stats, by = "idPrey") %>%
+        left_join(., p_stats[, c("BP", "p")], by = "BP") %>%
         mutate(`k` = k)
     
-    preyWithBaitOnly <-
-        stats %>%
-        group_by(`idPrey`) %>%
-        summarise(`nBait` = n()) %>%
-        filter(`nBait` == 1) %>%
-        .$idPrey
-    dat <-
-        dat %>%
-        mutate(`f_num_no_prey` =
-                ifelse((`idBait` == `idPrey`)&(`idPrey` %in% preyWithBaitOnly),
-                            k, k-`f_sum`))
-    df_num_no_prey <-
-        unique(dat[, c("idPrey", "f_num_no_prey")])
-    f_num_no_prey <-
-        df_num_no_prey$f_num_no_prey
-    names(f_num_no_prey) <-
-        df_num_no_prey$idPrey
-    statsM <-
-        stats %>%
-        mutate(`AvePSM` = ifelse(`idBait` != `idPrey`,
-                                    `AvePSM`,
-                                    ifelse(`idPrey` %in% preyWithBaitOnly, 
-                                        `AvePSM`, NA)))
-    statsMatrix <-
-        spread(`statsM`[, c("idBait", "idPrey", "AvePSM")], `idBait`, `AvePSM`)
-    m <-
-        as.matrix(statsMatrix[, -1])
-    rownames(m) <-
-        statsMatrix$idPrey 
-    prey.mean <-
-        rowSums(m, na.rm = TRUE) / k
+    # Prey stats (Mean, SD)
+    prey_stats <- .CompPASS_prey_stats(datInput, k, f_stats)
     
-    prey.stats <-
-        data.frame(`idPrey` = names(prey.mean),
-                    `Mean` = prey.mean,
-                    `MeanDiff` = rowSums((m - prey.mean)^2, na.rm = TRUE),
-                    `f_num_no_prey` = f_num_no_prey[names(prey.mean)],
-                    stringsAsFactors = FALSE) %>%
-        mutate(`SD` =  
-                sqrt((`MeanDiff` + ((`Mean`^2) * (`f_num_no_prey`)))/(k - 1)))
-    avePSM <-
-        left_join(`dat`, prey.stats[, c("idPrey", "Mean", "SD")], by = "idPrey")
-    output <-
-        avePSM %>%
+    # Scoring
+    output <- dat %>%
+        left_join(., prey_stats[, c("idPrey", "Mean", "SD")], by = "idPrey") %>%
         mutate(`scoreZ` = (`AvePSM` - `Mean`) / (`SD`)) %>%
         mutate(`scoreS` = sqrt((`AvePSM`) * (`k`) / (`f_sum`))) %>%
         mutate(`scoreD` = sqrt((`AvePSM`) * (((`k`) / (`f_sum`))^`p`))) %>%
@@ -166,18 +92,84 @@ CompPASS <- function(datInput){
         mutate(`WD_raw` = sqrt(`AvePSM` * (`WD_inner`^`p`)))
     
     # Weighted WD score
-    i = !(is.na(output$WD_raw) | is.nan(output$WD_raw))
-    WD_raw <-
-        output$WD_raw[i]
-    WD_raw.factor <-
-        unname(quantile(WD_raw, 0.98)[1])
+    i <- !(is.na(output$WD_raw) | is.nan(output$WD_raw))
+    WD_raw_val <- output$WD_raw[i]
+    WD_raw_factor <- unname(quantile(WD_raw_val, 0.98)[1])
+    output[i, "scoreWD"] <- WD_raw_val / WD_raw_factor
     
-    output[i, "scoreWD"] <-
-        WD_raw / WD_raw.factor
+    return(as.data.frame(output[, c("idBait", "idPrey", "AvePSM", "scoreZ", 
+                                "scoreS", "scoreD", "Entropy", "scoreWD")]))
+}
+
+.CompPASS_validate_input <- function(datInput) {
+    colInput <- c("idRun", "idBait", "idPrey", "countPrey")
+    if(!is.data.frame(datInput)){
+        stop("Input data should be data.frame")
+    }
+    if(!all(colInput %in% colnames(datInput))){
+        missingCol <- setdiff(colInput, colnames(datInput))
+        stop("Input data missing: ", paste(missingCol, collapse = ", "))
+    }
+}
+
+.CompPASS_f_stats <- function(datInput) {
+    unique(datInput[, c("idBait", "idPrey")]) %>%
+        group_by(`idPrey`) %>%
+        summarise(`f_sum` = n(), .groups = "drop")
+}
+
+.CompPASS_p_stats <- function(datInput) {
+    datInput[, c("idBait", "idPrey")] %>%
+        group_by(`idBait`, `idPrey`) %>%
+        summarise(`p` = n(), .groups = "drop") %>%
+        mutate(`BP` = paste(`idBait`, `idPrey`, sep = "~"))
+}
+
+.CompPASS_entropy_stats <- function(datInput) {
+    datInput %>%
+        group_by(`idBait`, `idPrey`, `idRun`) %>%
+        summarise(`MaxTSC` = max(`countPrey`), .groups = "drop") %>% 
+        group_by(`idBait`, `idPrey`) %>%
+        mutate(`p` = (`MaxTSC` + 1/n())/(sum(`MaxTSC`) + 1)) %>% 
+        mutate(`Entropy` = sum(-1*`p`*log(`p`, 2))) %>%
+        mutate(`BP` = paste(`idBait`, `idPrey`, sep = "~")) %>%
+        ungroup()
+}
+
+.CompPASS_ave_psm_stats <- function(datInput) {
+    datInput %>%
+        group_by(`idBait`, `idPrey`) %>%
+        summarise(`AvePSM` = mean(`countPrey`), .groups = "drop") %>%
+        mutate(`BP` = paste(`idBait`, `idPrey`, sep = "~"))
+}
+
+.CompPASS_prey_stats <- function(datInput, k, f_stats) {
+    stats <- .CompPASS_ave_psm_stats(datInput)
+    preyWithBaitOnly <- stats %>%
+        group_by(`idPrey`) %>%
+        summarise(`nBait` = n(), .groups = "drop") %>%
+        filter(`nBait` == 1) %>%
+        .$idPrey
     
-    output <-
-        as.data.frame(output[, c("idBait", "idPrey", "AvePSM",
-                                 "scoreZ", "scoreS", "scoreD",
-                                    "Entropy", "scoreWD")])
-    return(output)
+    statsM <- stats %>%
+        mutate(`AvePSM` = ifelse(`idBait` != `idPrey`, `AvePSM`,
+                                    ifelse(`idPrey` %in% preyWithBaitOnly, 
+                                        `AvePSM`, NA)))
+    
+    statsMatrix <- spread(`statsM`[, c("idBait", "idPrey", "AvePSM")], `idBait`, `AvePSM`)
+    m <- as.matrix(statsMatrix[, -1])
+    rownames(m) <- statsMatrix$idPrey 
+    prey.mean <- rowSums(m, na.rm = TRUE) / k
+    
+    f_num_no_prey_map <- ifelse(names(prey.mean) %in% preyWithBaitOnly & 
+                                    names(prey.mean) %in% unique(datInput$idBait),
+                                k, k - f_stats$f_sum[match(names(prey.mean), f_stats$idPrey)])
+    
+    prey.stats <- data.frame(`idPrey` = names(prey.mean),
+                                `Mean` = prey.mean,
+                                `MeanDiff` = rowSums((m - prey.mean)^2, na.rm = TRUE),
+                                `f_num_no_prey` = f_num_no_prey_map,
+                                stringsAsFactors = FALSE) %>%
+        mutate(`SD` = sqrt((`MeanDiff` + ((`Mean`^2) * (`f_num_no_prey`)))/(k - 1)))
+    return(prey.stats)
 }

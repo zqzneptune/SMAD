@@ -42,7 +42,6 @@
 #' @import Rcpp
 #' @importFrom Rcpp evalCpp
 #' @useDynLib SMAD
-#' @exportPattern '^[[:alpha:]]+'
 #' @export
 #' @examples
 #' data(TestDatInput)
@@ -51,19 +50,8 @@
 
 
 HG <- function(datInput) {
-    colInput <-
-        c("idRun", "idPrey", "countPrey", "lenPrey")
+    .HG_validate_input(datInput)
     
-    if(!is.data.frame(datInput)){
-        stop("Input data should be data.frame")
-    }
-    
-    if(!all(colInput %in% colnames(datInput))){
-        missingCol <-
-            setdiff(colInput, 
-                    colnames(datInput)[match(colInput, colnames(datInput))])
-        stop("Input data missing: ", paste(missingCol, collapse = ", "))
-    }
     . <- NULL
     idRun <- NULL
     countPrey <- NULL
@@ -82,8 +70,44 @@ HG <- function(datInput) {
     s <- NULL
     InteractorA <- NULL
     InteractorB <- NULL
-    datCnt <- 
-        datInput %>% 
+    
+    # Calculate Tn and matrix
+    datCnt <- .HG_calculate_tn(datInput)
+    
+    d <- spread(datCnt[, c("idRun", "idPrey", "Tn")], `idRun`, `Tn`)
+    g <- as.matrix(d[, -1])
+    g[is.na(g)] <- 0
+    g <- t(g)
+    colnames(g) <- d$idPrey
+    
+    # PPI network
+    pps <- comboGeneral(colnames(g), 2)
+    PPN <- .GetPPN(g)
+    CppPPN <- PPN[lower.tri(PPN, diag = FALSE)]
+    
+    datPPI <- data.frame(cbind(pps[CppPPN != 0, ], 
+                                CppPPN[CppPPN != 0]), stringsAsFactors = FALSE)
+    colnames(datPPI) <- c("InteractorA", "InteractorB", "ppiTN")
+    datPPI$ppiTN <- as.numeric(datPPI$ppiTN)
+    
+    # Scoring
+    scorePPI <- .HG_scoring(datPPI)
+    return(scorePPI)
+}
+
+.HG_validate_input <- function(datInput) {
+    colInput <- c("idRun", "idPrey", "countPrey", "lenPrey")
+    if(!is.data.frame(datInput)){
+        stop("Input data should be data.frame")
+    }
+    if(!all(colInput %in% colnames(datInput))){
+        missingCol <- setdiff(colInput, colnames(datInput))
+        stop("Input data missing: ", paste(missingCol, collapse = ", "))
+    }
+}
+
+.HG_calculate_tn <- function(datInput) {
+    datInput %>% 
         mutate(`NormalSpec` = `countPrey`/`lenPrey`) %>% 
         group_by(`idRun`) %>% 
         mutate(`SumNS` = sum(`NormalSpec`)) %>% 
@@ -91,44 +115,24 @@ HG <- function(datInput) {
         group_by(`idRun`) %>% 
         mutate(`NormalNSAF` = `NSAF`/min(`NSAF`)) %>% 
         mutate(`Tn` = as.integer(sqrt(`NormalNSAF`)))
-    d <- spread(datCnt[, c("idRun", "idPrey", "Tn")], 
-                `idRun`, `Tn`)
-    g <- as.matrix(d[, -1])
-    g[is.na(g)] <- 0
-    g <- t(g)
-    colnames(g) <- d$idPrey
-    pps <- 
-        comboGeneral(colnames(g), 2)
-    PPN <- .GetPPN(g)
-    CppPPN <- PPN[lower.tri(PPN, diag = FALSE)]
-    datPPI <- data.frame(cbind(pps[CppPPN != 0, ], 
-                                CppPPN[CppPPN != 0]), stringsAsFactors = FALSE)
-    colnames(datPPI) <- 
-        c("InteractorA", "InteractorB", "ppiTN")
-    datPPI$ppiTN <- 
-        as.numeric(datPPI$ppiTN)
-    tnInteractorA <- 
-        datPPI[, c("InteractorA", "ppiTN")]
-    colnames(tnInteractorA) <- 
-        c("UniprotID", "ppiTN")
-    tnInteractorB <- 
-        datPPI[, c("InteractorB", "ppiTN")]
-    colnames(tnInteractorB) <- 
-        c("UniprotID", "ppiTN")
-    tnProtein <- 
-        bind_rows(tnInteractorA, tnInteractorB) %>% 
+}
+
+.HG_scoring <- function(datPPI) {
+    tnInteractorA <- datPPI[, c("InteractorA", "ppiTN")]
+    colnames(tnInteractorA) <- c("UniprotID", "ppiTN")
+    tnInteractorB <- datPPI[, c("InteractorB", "ppiTN")]
+    colnames(tnInteractorB) <- c("UniprotID", "ppiTN")
+    
+    tnProtein <- bind_rows(tnInteractorA, tnInteractorB) %>% 
         group_by(`UniprotID`) %>% 
-        summarise(minTn = sum(`ppiTN`))
-    sumMinTnInteractorA <- 
-        tnProtein
-    colnames(sumMinTnInteractorA) <- 
-        c("InteractorA", "tnA")
-    sumMinTnInteractorB <- 
-        tnProtein
-    colnames(sumMinTnInteractorB) <- 
-        c("InteractorB", "tnB")
-    scorePPI <- 
-        datPPI %>% 
+        summarise(minTn = sum(`ppiTN`), .groups = "drop")
+    
+    sumMinTnInteractorA <- tnProtein
+    colnames(sumMinTnInteractorA) <- c("InteractorA", "tnA")
+    sumMinTnInteractorB <- tnProtein
+    colnames(sumMinTnInteractorB) <- c("InteractorB", "tnB")
+    
+    scorePPI <- datPPI %>% 
         left_join(., sumMinTnInteractorA, by = "InteractorA") %>% 
         left_join(., sumMinTnInteractorB, by = "InteractorB") %>% 
         mutate(`PPI` = paste(`InteractorA`, `InteractorB`, sep = "~")) %>% 

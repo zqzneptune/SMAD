@@ -32,10 +32,46 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// SAINTexpress_int_impl
+Rcpp::DataFrame SAINTexpress_int_impl(Rcpp::DataFrame inter_df, Rcpp::DataFrame prey_df, Rcpp::DataFrame bait_df, Rcpp::Nullable<Rcpp::DataFrame> GO_df, double f, int R, int L);
+RcppExport SEXP _SMAD_SAINTexpress_int_impl(SEXP inter_dfSEXP, SEXP prey_dfSEXP, SEXP bait_dfSEXP, SEXP GO_dfSEXP, SEXP fSEXP, SEXP RSEXP, SEXP LSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::DataFrame >::type inter_df(inter_dfSEXP);
+    Rcpp::traits::input_parameter< Rcpp::DataFrame >::type prey_df(prey_dfSEXP);
+    Rcpp::traits::input_parameter< Rcpp::DataFrame >::type bait_df(bait_dfSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::DataFrame> >::type GO_df(GO_dfSEXP);
+    Rcpp::traits::input_parameter< double >::type f(fSEXP);
+    Rcpp::traits::input_parameter< int >::type R(RSEXP);
+    Rcpp::traits::input_parameter< int >::type L(LSEXP);
+    rcpp_result_gen = Rcpp::wrap(SAINTexpress_int_impl(inter_df, prey_df, bait_df, GO_df, f, R, L));
+    return rcpp_result_gen;
+END_RCPP
+}
+// SAINTexpress_spc_impl
+Rcpp::DataFrame SAINTexpress_spc_impl(Rcpp::DataFrame inter_df, Rcpp::DataFrame prey_df, Rcpp::DataFrame bait_df, Rcpp::Nullable<Rcpp::DataFrame> GO_df, double f, int R, int L);
+RcppExport SEXP _SMAD_SAINTexpress_spc_impl(SEXP inter_dfSEXP, SEXP prey_dfSEXP, SEXP bait_dfSEXP, SEXP GO_dfSEXP, SEXP fSEXP, SEXP RSEXP, SEXP LSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::DataFrame >::type inter_df(inter_dfSEXP);
+    Rcpp::traits::input_parameter< Rcpp::DataFrame >::type prey_df(prey_dfSEXP);
+    Rcpp::traits::input_parameter< Rcpp::DataFrame >::type bait_df(bait_dfSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::DataFrame> >::type GO_df(GO_dfSEXP);
+    Rcpp::traits::input_parameter< double >::type f(fSEXP);
+    Rcpp::traits::input_parameter< int >::type R(RSEXP);
+    Rcpp::traits::input_parameter< int >::type L(LSEXP);
+    rcpp_result_gen = Rcpp::wrap(SAINTexpress_spc_impl(inter_df, prey_df, bait_df, GO_df, f, R, L));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_SMAD_GetDICE", (DL_FUNC) &_SMAD_GetDICE, 1},
     {"_SMAD_GetPPN", (DL_FUNC) &_SMAD_GetPPN, 1},
+    {"_SMAD_SAINTexpress_int_impl", (DL_FUNC) &_SMAD_SAINTexpress_int_impl, 7},
+    {"_SMAD_SAINTexpress_spc_impl", (DL_FUNC) &_SMAD_SAINTexpress_spc_impl, 7},
     {NULL, NULL, 0}
 };
 

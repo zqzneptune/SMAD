@@ -1,19 +1,14 @@
 Package: SMAD
 Type: Package
 Title: Statistical Modelling of AP-MS Data (SMAD)
-Version: 1.27.1
-Authors@R: 
-    person(given = "Qingzhou",
-           family = "Zhang",
-           role = c("aut", "cre"),
-           email = "zqzneptune@hotmail.com",
-           comment = c(ORCID = "0000-0001-9540-2624"))
+Version: 1.27.2
+Authors@R: person(given = "Qingzhou", family = "Zhang", role = c("aut", "cre"), email = "zqzneptune@hotmail.com", comment = c(ORCID = "0000-0001-9540-2624"))
 Description: Assigning probability scores to protein interactions captured in 
     affinity purification mass spectrometry (AP-MS) expriments to infer 
     protein-protein interactions. The output would facilitate non-specific 
     background removal as contaminants are commonly found in AP-MS data.
 Depends: 
-    R (>= 3.6.0),
+    R (>= 4.5.0),
     RcppAlgos
 Imports: 
     magrittr (>= 1.5),
@@ -21,12 +16,15 @@ Imports:
     stats, 
     tidyr,
     utils,
+    data.table,
     Rcpp (>= 1.0.0)
 LinkingTo: Rcpp
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
-RoxygenNote: 7.1.0
+LazyData: false
+RoxygenNote: 7.3.3
+URL: https://github.com/zqzneptune/SMAD
+BugReports: https://github.com/zqzneptune/SMAD/issues
 Suggests: 
     knitr,
     rmarkdown,
@@ -36,4 +34,5 @@ VignetteBuilder: knitr
 biocViews: 
     MassSpectrometry, 
     Proteomics,
-    Software
+    Software,
+    Network
