@@ -15,3 +15,7 @@ src/*.dll
 /doc/
 /Meta/
 *.Rproj
+src/*.o
+src/*.so
+src/**/*.o
+src/**/*.so

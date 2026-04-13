@@ -12,6 +12,7 @@
 #include <deque>
 #include <iomanip>
 
+// [[Rcpp::depends(BH)]]
 #include <boost/array.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>

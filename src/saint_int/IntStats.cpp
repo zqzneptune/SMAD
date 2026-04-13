@@ -8,6 +8,7 @@
 #include <string>
 #include <valarray>
 #include <vector>
+// [[Rcpp::depends(BH)]]
 #include <boost/array.hpp>
 
 #include <algorithm>

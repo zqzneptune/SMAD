@@ -10,6 +10,7 @@
 #include <vector>
 #include <algorithm>
 #include <set>
+// [[Rcpp::depends(BH)]]
 #include <boost/algorithm/string.hpp>
 #include "SpcGlobals.hpp"
 #include "SpcStats_fns.hpp"

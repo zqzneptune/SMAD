@@ -1,6 +1,7 @@
 #ifndef INT_STATS_FNS_HPP_
 #define INT_STATS_FNS_HPP_
 
+// [[Rcpp::depends(BH)]]
 #include <boost/math/distributions/normal.hpp>
 
 namespace saint_int {

@@ -18,7 +18,7 @@ Imports:
     utils,
     data.table,
     Rcpp (>= 1.0.0)
-LinkingTo: Rcpp
+LinkingTo: Rcpp, BH
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: false

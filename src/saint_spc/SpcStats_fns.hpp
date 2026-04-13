@@ -4,6 +4,7 @@
 #include <valarray>
 #include <vector>
 #include <cmath>
+// [[Rcpp::depends(BH)]]
 #include <boost/foreach.hpp>
 
 namespace saint_spc {

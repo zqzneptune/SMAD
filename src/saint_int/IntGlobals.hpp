@@ -10,6 +10,7 @@
 #include <set>
 #include <cmath>
 
+// [[Rcpp::depends(BH)]]
 #include <boost/foreach.hpp>
 #include <boost/array.hpp>
 #include "../saint_common/PreyClass.hpp"
