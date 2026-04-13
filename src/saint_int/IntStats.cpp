@@ -8,12 +8,9 @@
 #include <string>
 #include <valarray>
 #include <vector>
-// [[Rcpp::depends(BH)]]
-#include <boost/array.hpp>
-
+#include <array>
 #include <algorithm>
 #include <numeric>
-#include <boost/algorithm/string.hpp>
 #include <nlopt.hpp>
 #include "IntGlobals.hpp"
 #include "IntNloptWrap.hpp"
@@ -250,7 +247,7 @@ double Model_data::llikelihood() const {
 			const auto& k = Z(i,j);
 			const auto m = n_rep_vec[j];
 			double gsum = 0;
-			BOOST_FOREACH(const auto l , p2p_mapping[i])
+			for(const auto l : p2p_mapping[i])
 				gsum += Z(l, j).mean();
 			double MRFtrue = exp(beta1 + gamma * gsum);
 			double MRFfalse = exp(beta0);
@@ -265,29 +262,29 @@ double Model_data::llikelihood() const {
 	return loglik;
 }
 
-double Model_data::loglikelihood_Z(const size_t i, const size_t j, const size_t rep, const Fastmat<vector<boost::array<double, 2> > >& pre_calc_loglik) const {
+double Model_data::loglikelihood_Z(const size_t i, const size_t j, const size_t rep, const Fastmat<vector<std::array<double, 2> > >& pre_calc_loglik) const {
 	const auto& k = Z(i,j);
 	double gsum = 0;
 	if(gamma!=0){
-		BOOST_FOREACH(const auto l , p2p_mapping[i])
+		for(const auto l : p2p_mapping[i])
 			gsum += Z(l, j).mean();
 	}
 	double logMRFtrue = (beta1 + gamma * gsum);
 	double logMRFfalse = (beta0);
-	const boost::array<double, 2>& pcl = pre_calc_loglik(i,j)[rep];
+	const std::array<double, 2>& pcl = pre_calc_loglik(i,j)[rep];
 	return k[rep]? logMRFtrue + pcl[0] : logMRFfalse + pcl[1];
 }
 
 void Model_data::icm_Z() {
-	Fastmat<vector<boost::array<double, 2> > > pre_calc_loglik(nprey, nbait);
+	Fastmat<vector<std::array<double, 2> > > pre_calc_loglik(nprey, nbait);
 	for(size_t i=0; i < nprey; ++i)
 		for(size_t j=0; j < nbait; ++j) {
 			const auto& y = test_mat1(i,j);
 			const auto m = n_rep_vec[j];
-			pre_calc_loglik(i,j) = vector<boost::array<double, 2> >(m);
+			pre_calc_loglik(i,j) = vector<std::array<double, 2> >(m);
 			for(unsigned rep = 0; rep < m; rep++) {
 				double y_rep = saint::isnan(y[rep]) ? t : static_cast<double>(y[rep]);
-				pre_calc_loglik(i,j)[rep] = boost::array<double, 2>{{
+				pre_calc_loglik(i,j)[rep] = std::array<double, 2>{{
 						(quant_log_pdf(min<double>(y_rep, (eta[i]+d[i])), (eta[i]+d[i]),sd_true[i])),
 						(quant_log_pdf(max<double>(y_rep, eta[i]), eta[i], sd_false[i]))}};
 			}
@@ -305,8 +302,8 @@ void Model_data::icm_Z() {
 			}
 }
 
-Fastmat<vector<boost::array<double, 2> > > Model_data::precalculate_densities() const {
-	Fastmat<vector<boost::array<double, 2> > > densities(nprey, nbait);
+Fastmat<vector<std::array<double, 2> > > Model_data::precalculate_densities() const {
+	Fastmat<vector<std::array<double, 2> > > densities(nprey, nbait);
 	for(size_t i=0; i < nprey; ++i)
 		for(size_t j=0; j < nbait; ++j) {
 			const auto& y = test_mat1(i,j);
@@ -314,7 +311,7 @@ Fastmat<vector<boost::array<double, 2> > > Model_data::precalculate_densities() 
 			densities(i,j).resize(m);
 			for(unsigned rep = 0; rep < m; rep++){
 				double y_rep = saint::isnan(y[rep]) ? t : static_cast<double>(y[rep]);
-				densities(i,j)[rep] = boost::array<double, 2>{{
+				densities(i,j)[rep] = std::array<double, 2>{{
 						exp(quant_log_pdf(min<double>(y_rep, (eta[i]+d[i])), (eta[i]+d[i]),sd_true[i])),
 						exp(quant_log_pdf(max<double>(y_rep, eta[i]), eta[i], sd_false[i]))}};
 			}
@@ -341,7 +338,7 @@ void Model_data::wrt_MRF() {
 	Fastmat<double> gsum_mat(nprey, nbait);
 	for(size_t i=0; i < nprey; ++i)
 		for(size_t j=0; j < nbait; ++j)
-			BOOST_FOREACH(const auto l , p2p_mapping[i])
+			for(const auto l : p2p_mapping[i])
 				gsum_mat(i,j) += Z(l, j).mean();
 	nlopt::opt opt(nlopt::LN_COBYLA, 2);
 	opt.set_lower_bounds({-15, 0});
@@ -380,7 +377,7 @@ void Model_data::wrt_d() {
 	}
 }
 
-boost::array<Fastmat<double>, 3> Model_data::calculateScore(const Options& opts) const {
+std::array<Fastmat<double>, 3> Model_data::calculateScore(const Options& opts) const {
 	Fastmat<double> average_score(nprey, nbait);
 	Fastmat<double> min_log_odds_score(nprey, nbait);
 	Fastmat<double> maximum_score(nprey, nbait);
@@ -389,7 +386,7 @@ boost::array<Fastmat<double>, 3> Model_data::calculateScore(const Options& opts)
 			const auto& y = test_mat1(i,j);
 			const auto m = n_rep_vec[j];
 			double gsum = 0;
-			BOOST_FOREACH(const auto l , p2p_mapping[i])
+			for(const auto l : p2p_mapping[i])
 				gsum += Z(l, j).mean();
 			double MRFtrue = exp(beta1 + gamma * gsum);
 			double MRFfalse = exp(beta0);
@@ -416,7 +413,7 @@ boost::array<Fastmat<double>, 3> Model_data::calculateScore(const Options& opts)
 			min_log_odds_score(i, j) = tmp_odds_scores.back();
 			maximum_score(i, j) = tmp_scores.at(0);
 		}
-	return boost::array<Fastmat<double>, 3>{{average_score, maximum_score,min_log_odds_score}};
+	return std::array<Fastmat<double>, 3>{{average_score, maximum_score,min_log_odds_score}};
 }
 
 } // namespace saint_int

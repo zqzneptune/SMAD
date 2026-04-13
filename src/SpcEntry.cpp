@@ -12,10 +12,8 @@
 #include <deque>
 #include <iomanip>
 
-// [[Rcpp::depends(BH)]]
-#include <boost/array.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/foreach.hpp>
+#include <array>
+#include <sstream>
 
 #include "SpcGlobals.hpp"
 #include "SpcStats_fns.hpp"
@@ -23,6 +21,16 @@
 namespace saint_spc {
 
 using namespace std;
+
+// Helper function to split string by delimiter
+void split(std::vector<std::string>& tokens, const std::string& s, char delim) {
+    tokens.clear();
+    std::stringstream ss(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        if (!item.empty()) tokens.push_back(item);
+    }
+}
 
 // Forward declarations
 vector<string> uniqueBait(const deque<BaitClass> &BDATA, size_t &nbait);
@@ -151,14 +159,14 @@ void createList(deque<UIClass>& UIDATA, const deque<InterClass>& IDATA, const de
 		map<string, size_t> ubait_map;
 		for(size_t i = 0; i < ubait.size(); ++i)
 			ubait_map[ubait[i]] = i;
-		BOOST_FOREACH(const auto& bait , BDATA){
+		for(const auto& bait : BDATA){
 			if(!bait.get_isCtrl())
 				ip_idx_to_bait_no.push_back(ubait_map.at(bait.get_baitId()));
 		}
 	}
 	UIDATA.clear();
 	Fastmat<UIClass*> UImat(nprey, nbait);
-	BOOST_FOREACH(const auto& inter , IDATA)
+	for(const auto& inter : IDATA)
 		if(!inter.is_ctrl){
 			const size_t j = inter.get_colId();
 			const size_t b = ip_idx_to_bait_no[j];
@@ -178,9 +186,9 @@ void createList(deque<UIClass>& UIDATA, const deque<InterClass>& IDATA, const de
 }
 
 void zero_self_interactions(Countmat& test_mat_DATA, const deque<UIClass>& UIDATA) {
-	BOOST_FOREACH(const auto& UI , UIDATA) {
+	for(const auto& UI : UIDATA) {
 		if(UI.get_preyGeneId() == UI.get_baitId()) {
-			BOOST_FOREACH(const int col , UI.get_colId())
+			for(const int col : UI.get_colId())
 				test_mat_DATA(UI.get_rowId(), col) = 0;
 		}
 	}
@@ -206,7 +214,7 @@ Model_data icms(Model_data& dp, const bool with_gamma) {
 	return dp;
 }
 
-boost::array<Fastmat<double>, 3> computation(const bool with_gamma, Model_data& dp, const Options& opts) {
+std::array<Fastmat<double>, 3> computation(const bool with_gamma, Model_data& dp, const Options& opts) {
 	const auto dp0 = icms(dp, with_gamma);
 	const auto all_scores = dp0.calculateScore(opts);
 	dp0.print_MRF_parameters();
@@ -280,7 +288,7 @@ Rcpp::DataFrame SAINTexpress_spc_impl(Rcpp::DataFrame inter_df,
 		for(int i = 0; i < go_genes_col.size(); i++) {
 			string genes_str = Rcpp::as<string>(go_genes_col[i]);
 			vector<string> gene_vector;
-			boost::algorithm::split(gene_vector, genes_str, boost::is_any_of(" "));
+			split(gene_vector, genes_str, ' ');
 			go_groups.push_back(gene_vector);
 		}
 		p2p_mapping = createP2Pmap(prey_list, go_groups);
@@ -292,10 +300,10 @@ Rcpp::DataFrame SAINTexpress_spc_impl(Rcpp::DataFrame inter_df,
 	Model_data dp = statModel(opts, p2p_mapping, ubait, test_mat_DATA, ctrl_mat_DATA, ip_idx_to_bait_no, nprey, nbait);
 
 	Model_data dp_gamma0 = dp;
-	const boost::array<Fastmat<double>, 3> scores = computation(false, dp_gamma0, opts);
+	const std::array<Fastmat<double>, 3> scores = computation(false, dp_gamma0, opts);
 	Model_data dp_MRF = dp;
 	const auto ctor = Fastmat<double>(nprey, nbait);
-	boost::array<Fastmat<double>, 3> topo_scores{{ctor, ctor, ctor}};
+	std::array<Fastmat<double>, 3> topo_scores{{ctor, ctor, ctor}};
 	if(has_GO)
 		topo_scores = computation(true, dp_MRF, opts);
 	else
@@ -307,7 +315,7 @@ Rcpp::DataFrame SAINTexpress_spc_impl(Rcpp::DataFrame inter_df,
 	Rcpp::NumericVector out_AvgP, out_MaxP, out_TopoAvgP, out_TopoMaxP;
 	Rcpp::NumericVector out_SaintScore, out_logOddsScore, out_FoldChange, out_BFDR;
 
-	BOOST_FOREACH(const auto& ui, UIDATA) {
+	for(const auto& ui : UIDATA) {
 		size_t row = ui.get_rowId();
 		size_t baitcol = ip_idx_to_bait_no[ui.get_colId().front()];
 
@@ -359,7 +367,7 @@ Rcpp::DataFrame SAINTexpress_spc_impl(Rcpp::DataFrame inter_df,
 
 		// Boosted by
 		string boosted = "";
-		BOOST_FOREACH(const unsigned l, p2p_mapping[row]) {
+		for(const unsigned l : p2p_mapping[row]) {
 			if(dp_MRF.Z(l, baitcol).mean() > 0)
 				boosted += prey_list[l] + "|";
 		}

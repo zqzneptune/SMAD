@@ -9,9 +9,7 @@
 #include <string>
 #include <set>
 
-// [[Rcpp::depends(BH)]]
-#include <boost/foreach.hpp>
-#include <boost/array.hpp>
+#include <array>
 #include "../saint_common/PreyClass.hpp"
 #include "../saint_common/BaitClass.hpp"
 #include "../saint_common/InterClass.hpp"
@@ -107,8 +105,8 @@ struct Model_data {
 	void print_data_summary(const deque<PreyClass> &PDATA,const vector<string> &ubait, const deque<UIClass> &UIDATA) const;
 
 	double llikelihood() const;
-	double loglikelihood_Z(const size_t i, const size_t j, const size_t rep, const Fastmat<vector<boost::array<double, 2> > >& pre_calc_loglik) const;
-	boost::array<Fastmat<double>, 3> calculateScore(const Options& opts) const;
+	double loglikelihood_Z(const size_t i, const size_t j, const size_t rep, const Fastmat<vector<std::array<double, 2> > >& pre_calc_loglik) const;
+	std::array<Fastmat<double>, 3> calculateScore(const Options& opts) const;
 	vector<double> get_MRF_parameters() const {
 		return {beta0,beta1,gamma};
 	}
@@ -128,10 +126,10 @@ struct Model_data {
 	void wrt_d();
 	void icm_Z();
 private:
-	Fastmat<vector<boost::array<double, 2> > > precalculate_poisson_pmfs() const;
+	Fastmat<vector<std::array<double, 2> > > precalculate_poisson_pmfs() const;
 	double llik_MRF_gamma_0( const std::vector<double> &x, std::vector<double>& /*grad*/) const;
 	double llik_MRF( const std::vector<double>& x, std::vector<double>& /*grad*/, const Fastmat<double>& gsum) const;
-	double llik_gamma( const std::vector<double>& x, std::vector<double>& /*grad*/, const Fastmat<double>& gsum, const Fastmat<vector<boost::array<double, 2> > >& poisson_pmfs) const;
+	double llik_gamma( const std::vector<double>& x, std::vector<double>& /*grad*/, const Fastmat<double>& gsum, const Fastmat<vector<std::array<double, 2> > >& poisson_pmfs) const;
 };
 
 } // namespace saint_spc

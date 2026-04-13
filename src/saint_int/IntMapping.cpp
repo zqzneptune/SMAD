@@ -10,8 +10,6 @@
 #include <vector>
 #include <algorithm>
 #include <set>
-// [[Rcpp::depends(BH)]]
-#include <boost/algorithm/string.hpp>
 #include "IntGlobals.hpp"
 #include "IntStats_fns.hpp"
 
@@ -22,7 +20,7 @@ using namespace std;
 vector<string> uniqueBait(const deque<BaitClass> &BDATA, size_t &nbait ) {
 	set<string> ubait_set;
 	vector<string> ubait_vec;
-	BOOST_FOREACH(const BaitClass& bdata , BDATA)
+	for(const BaitClass& bdata : BDATA)
 		if( !bdata.get_isCtrl() ){
 			ubait_vec.push_back(bdata.get_baitId());
 			ubait_set.insert(bdata.get_baitId());

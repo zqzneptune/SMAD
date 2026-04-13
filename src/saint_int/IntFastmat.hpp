@@ -111,7 +111,7 @@ public:
 	vector1(const T& zero) : zero_element(zero) { }
 	T sum() const {
 		T tmp_sum = zero_element;
-		BOOST_FOREACH(const auto& e , *this)
+		for(const auto& e : *this)
 			for(unsigned i=0;i<tmp_sum.size();i++)
 				tmp_sum[i] += e[i];
 		return tmp_sum;
@@ -140,7 +140,7 @@ struct valarray1 : std::valarray<T> {
 		size_t s = this->size();
 		this->resize(s+1);
 		size_t i = 0;
-		BOOST_FOREACH(const auto& e , tmp) (*this)[i++] = e;
+		for(const auto& e : tmp) (*this)[i++] = e;
 		(*this)[s] = a;
 	}
 };
