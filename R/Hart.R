@@ -26,6 +26,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom stats phyper
 #' @importFrom RcppAlgos comboGeneral
+#' @importFrom utils unstack
 #' @useDynLib SMAD
 #' @export
 #' @examples
