@@ -105,7 +105,7 @@ datScore <- HG(TestDatInput)
 
 ### 4. Additional Models
 - **DICE**: Specifically designed for quantifying interaction significance in large networks.
-- **PE (Prey Equivalence)**: Scoring based on the probability of observing a prey across baits.
+- **PE (Purification Enrichment)**: Scoring based on the probability of observing a prey across baits.
 - **Hart**: Likelihood-based scoring for topological analysis.
 
 ## Documentation
@@ -119,7 +119,7 @@ For detailed information on the scoring algorithms and more examples, please ref
 
 `SMAD` is released under the **MIT License**.
 
-© 2018-2024 Qingzhou Zhang
+© 2018-2026 Qingzhou Zhang
 
 ---
 
