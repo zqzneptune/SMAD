@@ -1,16 +1,19 @@
-# Statistical Modelling of AP-MS Data (SMAD)
+# SMAD: Statistical Modelling of AP-MS and BioID Data
 
 [![Bioc Release](https://www.bioconductor.org/shields/build/release/bioc/SMAD.svg)](https://www.bioconductor.org/checkResults/release/bioc-LATEST/SMAD/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-The `SMAD` package implements statistical modelling of affinity purification–mass spectrometry (AP-MS) data to compute confidence scores for identifying *bona fide* protein-protein interactions (PPI). By assigning probability scores, `SMAD` facilitates the removal of non-specific background contaminants commonly found in proteomics data.
+`SMAD` is a high-performance Bioconductor R package designed for the statistical analysis of proteomics data, specifically focusing on **Affinity Purification Mass Spectrometry (AP-MS)** and **BioID / Proximity-dependent Labeling** (e.g., TurboID, APEX2). 
 
-## Key Features
+The package implements a comprehensive suite of validated algorithms to assign confidence scores to identified **Protein-Protein Interactions (PPI)**, enabling robust background contaminant removal and the identification of *bona fide* interactors from high-throughput mass spectrometry experiments.
 
-- **Multiple Scoring Models**: Support for validated algorithms including CompPASS, HGScore, SAINTexpress, PE, DICE, and Hart.
-- **Spoke & Matrix Models**: Flexibility to work with different topological interpretations of AP-MS data.
-- **Bioconductor Integration**: Built to standard proteomics community requirements.
-- **User-Friendly API**: Consistent interface across different scoring methods.
+## Why use SMAD?
+
+- **Optimized for BioID & AP-MS**: Tailored workflows for spectral count and intensity-based proteomics data.
+- **Robust Background Removal**: Efficiently filters non-specific contaminants common in affinity purification.
+- **Validated Algorithms**: Access to world-class scoring models like SAINTexpress, CompPASS, and HGScore.
+- **Bioconductor Standards**: Fully integrated with the Bioconductor ecosystem for seamless proteomics pipelines.
+- **Speed & Efficiency**: Core algorithms implemented in C++ for fast processing of large datasets.
 
 ## Installation
 
@@ -56,30 +59,54 @@ head(TestDatInput)
 
 *Tip: For replicates, ensure **idRun** is unique (e.g., by adding a suffix like "_A", "_B") to uniquely identify each experiment.*
 
-## Quick Usage
+## BioID & Proximity Labeling Workflow
 
-### 1. CompPASS
-The Comparative Proteomic Analysis Software Suite (CompPASS) identifies high-confidence interactors by comparing occurrences across multiple experiments.
+For BioID, TurboID, or APEX2 experiments, `SAINTexpress` is the recommended scoring method. Below is a typical workflow using spectral counts:
+
+```r
+library(SMAD)
+
+# 1. Prepare your data (Interactome, Prey, and Bait tables)
+# 2. Run SAINTexpress for significance analysis
+# results <- SAINTexpress_spc(your_inter_df, your_prey_df, your_bait_df)
+
+# The output includes:
+# - SaintScore: Probability of interaction
+# - BFDR: Bayesian False Discovery Rate
+# - FoldChange: Enrichment over controls
+```
+
+## Core Scoring Algorithms
+
+`SMAD` provides a unified interface to the most widely used algorithms in the proteomics community:
+
+### 1. SAINTexpress (The Gold Standard for BioID)
+Integrated R version of the [SAINTexpress](https://doi.org/10.1016/j.jprot.2013.11.004) algorithm. Ideal for **BioID**, **TurboID**, and standard **AP-MS** data with control experiments. It supports both spectral counts (spc) and intensities (int).
+
+```r
+# Ideal for BioID and Proximity Labeling data
+# result <- SAINTexpress_spc(inter, prey, bait)
+```
+
+### 2. CompPASS
+The **Comparative Proteomic Analysis Software Suite**. Efficiently identifies high-confidence interactors by comparing bait-prey occurrences across multiple diverse experiments without requiring explicit controls.
 
 ```r
 # Returns scores including WD-score, Z-score, S-score, and D-score
 datScore <- CompPASS(TestDatInput)
 ```
 
-### 2. HGScore
-Based on a hypergeometric distribution error model incorporating NSAF for length normalization.
+### 3. HGScore (Hypergeometric Scoring)
+A distribution-based model that incorporates NSAF (Normalized Spectral Abundance Factor) for length normalization, suitable for high-throughput PPI mapping.
 
 ```r
 datScore <- HG(TestDatInput)
 ```
 
-### 3. SAINTexpress
-An integrated version of the widely used SAINT algorithm for significance analysis of interactomes.
-
-```r
-# Supporting both spectral counts (spc) and intensities (int)
-# See ?SAINTexpress_spc for detailed parameter documentation
-```
+### 4. Additional Models
+- **DICE**: Specifically designed for quantifying interaction significance in large networks.
+- **PE (Prey Equivalence)**: Scoring based on the probability of observing a prey across baits.
+- **Hart**: Likelihood-based scoring for topological analysis.
 
 ## Documentation
 
