@@ -11,9 +11,9 @@
 #'         spokeBP, spokePB, matrixPP, PE
 #'
 #' @author Qingzhou Zhang, \email{zqzneptune@hotmail.com}
-#' @references Collins, S.R., et al. "Toward a comprehensive autophagy 
-#'             protein-protein interaction network." 
-#'             Molecular systems biology 3.1 (2007): 88.
+#' @references Collins, Sean R., et al. "Toward a comprehensive atlas of the 
+#' physical interactome of Saccharomyces cerevisiae." Molecular & Cellular 
+#' Proteomics 6.3 (2007): 439-450.
 #'
 #' @importFrom data.table as.data.table
 #' @importFrom data.table setDT

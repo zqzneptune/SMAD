@@ -81,7 +81,7 @@ library(SMAD)
 `SMAD` provides a unified interface to the most widely used algorithms in the proteomics community:
 
 ### 1. SAINTexpress (The Gold Standard for BioID)
-Integrated R version of the [SAINTexpress](https://doi.org/10.1016/j.jprot.2013.11.004) algorithm. Ideal for **BioID**, **TurboID**, and standard **AP-MS** data with control experiments. It supports both spectral counts (spc) and intensities (int).
+Integrated R version of the [SAINTexpress](https://doi.org/10.1016/j.jprot.2013.10.023) algorithm. Ideal for **BioID**, **TurboID**, and standard **AP-MS** data with control experiments. It supports both spectral counts (spc) and intensities (int).
 
 ```r
 # Ideal for BioID and Proximity Labeling data
@@ -128,5 +128,5 @@ For detailed information on the scoring algorithms and more examples, please ref
 - **CompPASS**: Sowa et al. (2009) [Cell 138(2):389-403](https://doi.org/10.1016/j.cell.2009.04.042)
 - **HGScore**: Hart et al. (2007) [BMC Bioinformatics 8:236](https://doi.org/10.1186/1471-2105-8-236)
 - **DICE**: Zhang et al. (2008) [Bioinformatics 24(7):979–986](https://doi.org/10.1093/bioinformatics/btn036)
-- **PE**: Collins et al. (2007) [Mol Syst Biol 3:88](https://doi.org/10.1038/msb4100128)
-- **SAINTexpress**: Teo et al. (2014) [J Proteomics 100:37-43](https://doi.org/10.1016/j.jprot.2013.11.004)
+- **PE**: Collins et al. (2007) [Mol Cell Proteomics 6(1):121-132](https://doi.org/10.1074/mcp.M600381-MCP200)
+- **SAINTexpress**: Teo et al. (2014) [J Proteomics 100:37-43](https://doi.org/10.1016/j.jprot.2013.10.023)
