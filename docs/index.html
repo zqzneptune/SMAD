@@ -78,22 +78,25 @@
       </header><div class="row">
   <div class="contents col-md-9">
 <div class="section level1">
-<div class="page-header"><h1 id="statistical-modelling-of-ap-ms-data-smad">Statistical Modelling of AP-MS Data (SMAD)<a class="anchor" aria-label="anchor" href="#statistical-modelling-of-ap-ms-data-smad"></a>
+<div class="page-header"><h1 id="smad-statistical-modelling-of-ap-ms-and-bioid-data">SMAD: Statistical Modelling of AP-MS and BioID Data<a class="anchor" aria-label="anchor" href="#smad-statistical-modelling-of-ap-ms-and-bioid-data"></a>
 </h1></div>
 <p><a href="https://www.bioconductor.org/checkResults/release/bioc-LATEST/SMAD/" class="external-link"><img src="https://www.bioconductor.org/shields/build/release/bioc/SMAD.svg" alt="Bioc Release"></a> <a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a></p>
-<p>The <code>SMAD</code> package implements statistical modelling of affinity purification–mass spectrometry (AP-MS) data to compute confidence scores for identifying <em>bona fide</em> protein-protein interactions (PPI). By assigning probability scores, <code>SMAD</code> facilitates the removal of non-specific background contaminants commonly found in proteomics data.</p>
+<p><code>SMAD</code> is a high-performance Bioconductor R package designed for the statistical analysis of proteomics data, specifically focusing on <strong>Affinity Purification Mass Spectrometry (AP-MS)</strong> and <strong>BioID / Proximity-dependent Labeling</strong> (e.g., TurboID, APEX2).</p>
+<p>The package implements a comprehensive suite of validated algorithms to assign confidence scores to identified <strong>Protein-Protein Interactions (PPI)</strong>, enabling robust background contaminant removal and the identification of <em>bona fide</em> interactors from high-throughput mass spectrometry experiments.</p>
 <div class="section level2">
-<h2 id="key-features">Key Features<a class="anchor" aria-label="anchor" href="#key-features"></a>
+<h2 id="why-use-smad">Why use SMAD?<a class="anchor" aria-label="anchor" href="#why-use-smad"></a>
 </h2>
 <ul>
 <li>
-<strong>Multiple Scoring Models</strong>: Support for validated algorithms including CompPASS, HGScore, SAINTexpress, PE, DICE, and Hart.</li>
+<strong>Optimized for BioID &amp; AP-MS</strong>: Tailored workflows for spectral count and intensity-based proteomics data.</li>
 <li>
-<strong>Spoke &amp; Matrix Models</strong>: Flexibility to work with different topological interpretations of AP-MS data.</li>
+<strong>Robust Background Removal</strong>: Efficiently filters non-specific contaminants common in affinity purification.</li>
 <li>
-<strong>Bioconductor Integration</strong>: Built to standard proteomics community requirements.</li>
+<strong>Validated Algorithms</strong>: Access to world-class scoring models like SAINTexpress, CompPASS, and HGScore.</li>
 <li>
-<strong>User-Friendly API</strong>: Consistent interface across different scoring methods.</li>
+<strong>Bioconductor Standards</strong>: Fully integrated with the Bioconductor ecosystem for seamless proteomics pipelines.</li>
+<li>
+<strong>Speed &amp; Efficiency</strong>: Core algorithms implemented in C++ for fast processing of large datasets.</li>
 </ul>
 </div>
 <div class="section level2">
@@ -170,30 +173,59 @@
 <p>*Tip: For replicates, ensure <strong>idRun</strong> is unique (e.g., by adding a suffix like “_A”, “_B”) to uniquely identify each experiment.*</p>
 </div>
 <div class="section level2">
-<h2 id="quick-usage">Quick Usage<a class="anchor" aria-label="anchor" href="#quick-usage"></a>
+<h2 id="bioid--proximity-labeling-workflow">BioID &amp; Proximity Labeling Workflow<a class="anchor" aria-label="anchor" href="#bioid--proximity-labeling-workflow"></a>
 </h2>
-<div class="section level3">
-<h3 id="id_1-comppass">1. CompPASS<a class="anchor" aria-label="anchor" href="#id_1-comppass"></a>
-</h3>
-<p>The Comparative Proteomic Analysis Software Suite (CompPASS) identifies high-confidence interactors by comparing occurrences across multiple experiments.</p>
+<p>For BioID, TurboID, or APEX2 experiments, <code>SAINTexpress</code> is the recommended scoring method. Below is a typical workflow using spectral counts:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/zqzneptune/SMAD" class="external-link">SMAD</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 1. Prepare your data (Interactome, Prey, and Bait tables)</span></span>
+<span><span class="co"># 2. Run SAINTexpress for significance analysis</span></span>
+<span><span class="co"># results &lt;- SAINTexpress_spc(your_inter_df, your_prey_df, your_bait_df)</span></span>
+<span></span>
+<span><span class="co"># The output includes:</span></span>
+<span><span class="co"># - SaintScore: Probability of interaction</span></span>
+<span><span class="co"># - BFDR: Bayesian False Discovery Rate</span></span>
+<span><span class="co"># - FoldChange: Enrichment over controls</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="core-scoring-algorithms">Core Scoring Algorithms<a class="anchor" aria-label="anchor" href="#core-scoring-algorithms"></a>
+</h2>
+<p><code>SMAD</code> provides a unified interface to the most widely used algorithms in the proteomics community:</p>
+<div class="section level3">
+<h3 id="id_1-saintexpress-the-gold-standard-for-bioid">1. SAINTexpress (The Gold Standard for BioID)<a class="anchor" aria-label="anchor" href="#id_1-saintexpress-the-gold-standard-for-bioid"></a>
+</h3>
+<p>Integrated R version of the <a href="https://doi.org/10.1016/j.jprot.2013.10.023" class="external-link">SAINTexpress</a> algorithm. Ideal for <strong>BioID</strong>, <strong>TurboID</strong>, and standard <strong>AP-MS</strong> data with control experiments. It supports both spectral counts (spc) and intensities (int).</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Ideal for BioID and Proximity Labeling data</span></span>
+<span><span class="co"># result &lt;- SAINTexpress_spc(inter, prey, bait)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="id_2-comppass">2. CompPASS<a class="anchor" aria-label="anchor" href="#id_2-comppass"></a>
+</h3>
+<p>The <strong>Comparative Proteomic Analysis Software Suite</strong>. Efficiently identifies high-confidence interactors by comparing bait-prey occurrences across multiple diverse experiments without requiring explicit controls.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Returns scores including WD-score, Z-score, S-score, and D-score</span></span>
 <span><span class="va">datScore</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/CompPASS.html">CompPASS</a></span><span class="op">(</span><span class="va">TestDatInput</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="id_2-hgscore">2. HGScore<a class="anchor" aria-label="anchor" href="#id_2-hgscore"></a>
+<h3 id="id_3-hgscore-hypergeometric-scoring">3. HGScore (Hypergeometric Scoring)<a class="anchor" aria-label="anchor" href="#id_3-hgscore-hypergeometric-scoring"></a>
 </h3>
-<p>Based on a hypergeometric distribution error model incorporating NSAF for length normalization.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<p>A distribution-based model that incorporates NSAF (Normalized Spectral Abundance Factor) for length normalization, suitable for high-throughput PPI mapping.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">datScore</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/HG.html">HG</a></span><span class="op">(</span><span class="va">TestDatInput</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="id_3-saintexpress">3. SAINTexpress<a class="anchor" aria-label="anchor" href="#id_3-saintexpress"></a>
+<h3 id="id_4-additional-models">4. Additional Models<a class="anchor" aria-label="anchor" href="#id_4-additional-models"></a>
 </h3>
-<p>An integrated version of the widely used SAINT algorithm for significance analysis of interactomes.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Supporting both spectral counts (spc) and intensities (int)</span></span>
-<span><span class="co"># See ?SAINTexpress_spc for detailed parameter documentation</span></span></code></pre></div>
+<ul>
+<li>
+<strong>DICE</strong>: Specifically designed for quantifying interaction significance in large networks.</li>
+<li>
+<strong>PE (Prey Equivalence)</strong>: Scoring based on the probability of observing a prey across baits.</li>
+<li>
+<strong>Hart</strong>: Likelihood-based scoring for topological analysis.</li>
+</ul>
 </div>
 </div>
 <div class="section level2">
@@ -229,10 +261,10 @@
 <strong>DICE</strong>: Zhang et al. (2008) <a href="https://doi.org/10.1093/bioinformatics/btn036" class="external-link">Bioinformatics 24(7):979–986</a>
 </li>
 <li>
-<strong>PE</strong>: Collins et al. (2007) <a href="https://doi.org/10.1038/msb4100128" class="external-link">Mol Syst Biol 3:88</a>
+<strong>PE</strong>: Collins et al. (2007) <a href="https://doi.org/10.1074/mcp.M600381-MCP200" class="external-link">Mol Cell Proteomics 6(1):121-132</a>
 </li>
 <li>
-<strong>SAINTexpress</strong>: Teo et al. (2014) <a href="https://doi.org/10.1016/j.jprot.2013.11.004" class="external-link">J Proteomics 100:37-43</a>
+<strong>SAINTexpress</strong>: Teo et al. (2014) <a href="https://doi.org/10.1016/j.jprot.2013.10.023" class="external-link">J Proteomics 100:37-43</a>
 </li>
 </ul>
 </div>
