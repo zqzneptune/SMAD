@@ -26,7 +26,7 @@ public:
 	size_t nrow()const{return n_rows;}
 	size_t ncol()const{return n_cols;}
 private:
-	Fastmat<T>();
+	Fastmat();
 	const T& index_operator(const int &x, const int &y) const {
 		return mat[y + x * n_cols];
 	}
