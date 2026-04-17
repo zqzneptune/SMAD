@@ -1,5 +1,5 @@
 # =============================================================================
-# Makevars — Linux / macOS (x86_64 & arm64)
+# Makevars.win — Windows (x86_64 via Rtools / MinGW-w64)
 # =============================================================================
 
 CXX_STD = CXX14
@@ -12,20 +12,21 @@ PKG_CXXFLAGS = -Inlopt/api -Inlopt -Inlopt/cobyla -Inlopt/util \
                -Isaint_common -Isaint_spc -Isaint_int
 
 # NLopt C sources need their own include paths + feature-detection macros.
-# These macros are safe for all POSIX platforms (Linux + macOS, any arch).
+# Windows-specific: NO HAVE_UNISTD_H, NO HAVE_GETTIMEOFDAY.
+# MinGW-w64 provides copysign, isinf, isnan, stdint.h, and time().
 PKG_CFLAGS = -Inlopt/api -Inlopt -Inlopt/cobyla -Inlopt/util \
              -Inlopt/auglag -Inlopt/bobyqa -Inlopt/cdirect -Inlopt/crs \
              -Inlopt/direct -Inlopt/isres -Inlopt/luksan -Inlopt/mlsl \
              -Inlopt/mma -Inlopt/neldermead -Inlopt/newuoa -Inlopt/praxis \
              -Inlopt/slsqp \
              -DHAVE_COPYSIGN -DHAVE_ISINF -DHAVE_ISNAN -DHAVE_STDINT_H \
-             -DHAVE_UNISTD_H -DHAVE_TIME -DHAVE_GETTIMEOFDAY
+             -DHAVE_TIME
 
 # ---------------------------------------------------------------------------
 # Linker flags
 # ---------------------------------------------------------------------------
-# -lm is needed by NLopt (math functions like log, exp, sqrt, etc.)
-PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) -lm
+# MinGW links -lm implicitly; only need OpenMP if used.
+PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS)
 
 # ---------------------------------------------------------------------------
 # NLopt C sources

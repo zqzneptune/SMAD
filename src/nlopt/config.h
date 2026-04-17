@@ -1,147 +1,135 @@
-/* config.h.  Generated from config.h.in by configure.  */
-/* config.h.in.  Generated from configure.ac by autoheader.  */
+/* config.h — Portable configuration for NLopt bundled in SMAD R package.
+ *
+ * This replaces the autoconf-generated config.h with compile-time platform
+ * detection so that the same source tree builds on:
+ *   - Linux   x86_64 / arm64   (GCC / Clang)
+ *   - macOS   x86_64 / arm64   (Apple Clang)
+ *   - Windows x86_64           (MinGW-w64 via Rtools)
+ *
+ * Most feature macros are also passed via PKG_CFLAGS in Makevars /
+ * Makevars.win, but this header provides fallbacks and platform-specific
+ * type-size detection that cannot be done from Makevars alone.
+ */
 
-/* Bugfix version number. */
-#define BUGFIX_VERSION 0
+#ifndef NLOPT_CONFIG_H
+#define NLOPT_CONFIG_H
 
-/* Define to enable extra debugging code. */
-/* #undef DEBUG */
-
-/* Define to 1 if you have the `BSDgettimeofday' function. */
-/* #undef HAVE_BSDGETTIMEOFDAY */
-
-/* Define if the copysign function/macro is available. */
-#define HAVE_COPYSIGN 1
-
-/* Define to 1 if you have the <dlfcn.h> header file. */
-#define HAVE_DLFCN_H 1
-
-/* Define to 1 if you have the <getopt.h> header file. */
-#define HAVE_GETOPT_H 1
-
-/* Define to 1 if you have the `getpid' function. */
-#define HAVE_GETPID 1
-
-/* Define if syscall(SYS_gettid) available. */
-#define HAVE_GETTID_SYSCALL 1
-
-/* Define to 1 if you have the `gettimeofday' function. */
-#define HAVE_GETTIMEOFDAY 1
-
-/* Define to 1 if you have the <inttypes.h> header file. */
-#define HAVE_INTTYPES_H 1
-
-/* Define if the isinf() function/macro is available. */
-#define HAVE_ISINF 1
-
-/* Define if the isnan() function/macro is available. */
-#define HAVE_ISNAN 1
-
-/* Define to 1 if you have the `m' library (-lm). */
-#define HAVE_LIBM 1
-
-/* Define to 1 if you have the <memory.h> header file. */
-#define HAVE_MEMORY_H 1
-
-/* Define to 1 if you have the `qsort_r' function. */
-#define HAVE_QSORT_R 1
-
-/* Define to 1 if you have the <stdint.h> header file. */
-#define HAVE_STDINT_H 1
-
-/* Define to 1 if you have the <stdlib.h> header file. */
-#define HAVE_STDLIB_H 1
-
-/* Define to 1 if you have the <strings.h> header file. */
-#define HAVE_STRINGS_H 1
-
-/* Define to 1 if you have the <string.h> header file. */
-#define HAVE_STRING_H 1
-
-/* Define to 1 if you have the <sys/stat.h> header file. */
-#define HAVE_SYS_STAT_H 1
-
-/* Define to 1 if you have the <sys/types.h> header file. */
-#define HAVE_SYS_TYPES_H 1
-
-/* Define to 1 if you have the `time' function. */
-#define HAVE_TIME 1
-
-/* Define to 1 if the system has the type `uint32_t'. */
-#define HAVE_UINT32_T 1
-
-/* Define to 1 if you have the <unistd.h> header file. */
-#define HAVE_UNISTD_H 1
-
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
-#define LT_OBJDIR ".libs/"
-
-/* Major version number. */
+/* ===== Version ========================================================== */
 #define MAJOR_VERSION 2
-
-/* Minor version number. */
 #define MINOR_VERSION 3
-
-/* Name of package */
+#define BUGFIX_VERSION 0
 #define PACKAGE "nlopt"
-
-/* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT "stevenj@alum.mit.edu"
-
-/* Define to the full name of this package. */
 #define PACKAGE_NAME "nlopt"
-
-/* Define to the full name and version of this package. */
 #define PACKAGE_STRING "nlopt 2.3"
-
-/* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "nlopt"
-
-/* Define to the home page for this package. */
 #define PACKAGE_URL ""
-
-/* Define to the version of this package. */
 #define PACKAGE_VERSION "2.3"
-
-/* replacement for broken HUGE_VAL macro, if needed */
-/* #undef REPLACEMENT_HUGE_VAL */
-
-/* The size of `unsigned int', as computed by sizeof. */
-#define SIZEOF_UNSIGNED_INT 4
-
-/* The size of `unsigned long', as computed by sizeof. */
-#define SIZEOF_UNSIGNED_LONG 8
-
-/* Define to 1 if you have the ANSI C header files. */
-#define STDC_HEADERS 1
-
-/* Define to C thread-local keyword, or to nothing if this is not supported in
-   your compiler. */
-#define THREADLOCAL __thread
-
-/* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
-#define TIME_WITH_SYS_TIME 1
-
-/* Version number of package */
 #define VERSION "2.3"
 
-/* Define if compiled including C++-based routines */
-/* #undef WITH_CXX */
+/* ===== Standard C headers (always available) ============================= */
+#define STDC_HEADERS 1
 
-/* Define if we have the non-free Nocedal LBFGS code */
+#ifndef HAVE_STDINT_H
+#define HAVE_STDINT_H 1
+#endif
+
+#define HAVE_STDLIB_H 1
+#define HAVE_STRING_H 1
+#define HAVE_STRINGS_H 1
+#define HAVE_MEMORY_H 1
+
+/* ===== Math functions (universally available) ============================ */
+#ifndef HAVE_COPYSIGN
+#define HAVE_COPYSIGN 1
+#endif
+
+#ifndef HAVE_ISINF
+#define HAVE_ISINF 1
+#endif
+
+#ifndef HAVE_ISNAN
+#define HAVE_ISNAN 1
+#endif
+
+#define HAVE_LIBM 1
+
+/* ===== Time ============================================================= */
+#ifndef HAVE_TIME
+#define HAVE_TIME 1
+#endif
+
+/* ===== Platform-specific: POSIX vs Windows ============================== */
+#ifdef _WIN32
+  /* ---- Windows (MinGW-w64 / MSVC) ------------------------------------- */
+  /* No unistd.h, no dlfcn.h, no gettimeofday, no getopt.h */
+  /* getpid is available as _getpid */
+  #define HAVE_GETPID 1
+
+  /* sizeof(unsigned long) is 4 on Windows (LLP64 model) */
+  #define SIZEOF_UNSIGNED_INT  4
+  #define SIZEOF_UNSIGNED_LONG 4
+  #define HAVE_UINT32_T 1
+
+  /* Thread-local storage */
+  #if defined(__GNUC__)
+    /* MinGW GCC supports __thread */
+    #define THREADLOCAL __thread
+  #elif defined(_MSC_VER)
+    #define THREADLOCAL __declspec(thread)
+  #else
+    #define THREADLOCAL
+  #endif
+
+#else
+  /* ---- POSIX: Linux / macOS (any architecture) ------------------------- */
+  #ifndef HAVE_UNISTD_H
+  #define HAVE_UNISTD_H 1
+  #endif
+
+  #define HAVE_DLFCN_H 1
+  #define HAVE_GETOPT_H 1
+  #define HAVE_GETPID 1
+  #define HAVE_SYS_STAT_H 1
+  #define HAVE_SYS_TYPES_H 1
+
+  #ifndef HAVE_GETTIMEOFDAY
+  #define HAVE_GETTIMEOFDAY 1
+  #endif
+
+  #define TIME_WITH_SYS_TIME 1
+
+  /* sizeof(unsigned long) is 8 on LP64 (Linux/macOS 64-bit) */
+  #define SIZEOF_UNSIGNED_INT  4
+  #define SIZEOF_UNSIGNED_LONG 8
+  #define HAVE_UINT32_T 1
+
+  /* qsort_r: available on glibc (Linux) and macOS */
+  #if defined(__GLIBC__) || defined(__APPLE__)
+    #define HAVE_QSORT_R 1
+  #endif
+
+  /* gettid syscall: Linux only */
+  #ifdef __linux__
+    #define HAVE_GETTID_SYSCALL 1
+  #endif
+
+  /* Thread-local storage: GCC/Clang */
+  #define THREADLOCAL __thread
+
+#endif /* _WIN32 */
+
+/* ===== Optional features (disabled) ===================================== */
+/* #undef DEBUG */
+/* #undef WITH_CXX */
 /* #undef WITH_NOCEDAL */
 
-/* Define to empty if `const' does not conform to ANSI C. */
-/* #undef const */
-
-/* Define to `__inline__' or `__inline' if that's what the C compiler
-   calls it, or to nothing if 'inline' is not supported under any name.  */
+/* ===== Inline =========================================================== */
 #ifndef __cplusplus
 /* #undef inline */
 #endif
 
-/* R compatibility macros */
+/* ===== R compatibility macros =========================================== */
 #include <R.h>
 #include <Rinternals.h>
 #define printf Rprintf
@@ -158,6 +146,9 @@
 #define exit(x) error("Exit called with code %d", (x))
 #endif
 
+/* Suppress deprecation warnings in NLopt sources */
 #ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
+
+#endif /* NLOPT_CONFIG_H */
