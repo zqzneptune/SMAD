@@ -502,7 +502,7 @@ L20:
 /* L30: */
 	    }
 L40:
-	    pos = pos;
+	    ;
 	}
     }
 } /* dirresortlist_ */
