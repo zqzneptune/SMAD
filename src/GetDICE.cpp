@@ -13,11 +13,11 @@ NumericMatrix GetDICE(NumericMatrix mat) {
       double x = 0;
       double y = 0;
       for(int r = rstart; r < rend; r++){
-        if((mat(r, c1) == 1) & (mat(r, c2) == 1)){
+        if((mat(r, c1) == 1) && (mat(r, c2) == 1)){
           q += 1;
-        } else if((mat(r, c1) == 1) & (mat(r, c2) == 0)){
+        } else if((mat(r, c1) == 1) && (mat(r, c2) == 0)){
           x += 1;
-        } else if((mat(r, c1) == 0) & (mat(r, c2) == 1)){
+        } else if((mat(r, c1) == 0) && (mat(r, c2) == 1)){
           y += 1;
         }
       }

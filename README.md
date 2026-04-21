@@ -1,99 +1,112 @@
-# Statistical Modelling of AP-MS Data (SMAD)
+# SMAD: Statistical Modelling of AP-MS Data
 
-This R package implements statistical modelling of affinity purification–mass spectrometry (AP-MS) data to compute confidence scores to identify *bona fide* protein-protein interactions (PPI).
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![R-CMD-check](https://github.com/zqzneptune/SMAD/workflows/R-CMD-check/badge.svg)](https://github.com/zqzneptune/SMAD/actions)
+
+**SMAD** is an R package designed for the statistical analysis of Affinity Purification–Mass Spectrometry (AP-MS) data. It implements several widely-used algorithms to compute confidence scores, helping researchers distinguish *bona fide* protein-protein interactions (PPI) from non-specific background noise.
+
+## Table of Contents
+- [Installation](#installation)
+- [Input Data Format](#input-data-format)
+- [Available Scoring Algorithms](#available-scoring-algorithms)
+- [Quick Start](#quick-start)
+- [References](#references)
 
 ## Installation
 
-The development version can be installed through github:
-```{r}
- devtools::install_github(repo="zqzneptune/SMAD")
- library(SMAD)
-```
-## Input Data
-A demo data.frame was provided as a hint how the input data should strcutured in order to run the scoring functions:
+You can install the development version of **SMAD** from GitHub using `devtools` or `remotes`:
 
-```{r}
-data(TestDatInput)
-colnames(TestDataInput)
+```r
+# Install devtools if not already installed
+if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
 
-[1] "idRun" "idBait" "idPrey" "countPrey" "lenPrey" 
+# Install SMAD
+devtools::install_github("zqzneptune/SMAD")
+
+# Load the package
+library(SMAD)
 ```
 
-|idRun|idBait|idPrey|countPrey|lenPrey|
-|-----|:----:|:----:|:-------:|-------|
-|Unique ID of one AP-MS run|Bait ID|Prey ID|Prey peptide count|Protein sequence length of the prey|
+## Input Data Format
 
-In case of duplcates, a suffix or prefix of e.g. "A", "B" could be added to **idRun** in order to make **"idRun-idBait"** combination unique to each replicate.
+To ensure compatibility with SMAD scoring functions, your input `data.frame` should follow a specific structure. You can explore the built-in demo dataset:
 
-## Run scoring
+```r
+data(TestDataInput)
+head(TestDataInput)
+```
+
+### Required Columns
+
+| Column | Description |
+|:-------|:------------|
+| **idRun** | Unique identifier for a specific AP-MS run (replicate). |
+| **idBait** | Unique identifier for the bait protein. |
+| **idPrey** | Unique identifier for the prey protein. |
+| **countPrey** | Spectral counts (or peptide counts) for the prey protein. |
+| **lenPrey** | Protein sequence length of the prey (required for HGScore/NSAF). |
+
+> **Note on Replicates:** If you have biological or technical duplicates, ensure the `idRun` is unique (e.g., append suffixes like `_A`, `_B`). The combination of `idRun` and `idBait` should uniquely identify a single purification.
+
+---
+
+## Available Scoring Algorithms
 
 ### 1. CompPASS
+The **Comparative Proteomic Analysis Software Suite (CompPASS)** uses a "spoke model" to identify high-confidence interactions. It outputs several metrics, including **Z-score, S-score, D-score, and WD-score**. This implementation is optimized for performance based on the BioPlex pipeline.
 
-Comparative Proteomic Analysis Software Suite (CompPASS) is based on spoke model. This algorithm was developed by Dr. Mathew Sowa for defining the human deubiquitinating enzyme interaction landscape [(Sowa, Mathew E., et al., 2009)][1]. The implementation of this algorithm was inspired by Dr. Sowa's [online tutorial][2]. The output includes Z-score, S-score, D-score and WD-score. In its implementation in BioPlex 1.0 [(Huttlin, Edward L., et al., 2015)][3] and 
-BioPlex 2.0 [(Huttlin, Edward L., et al., 2017)][4], a naive 
-Bayes classifier that learns to distinguish true interacting proteins from 
-non-specific background and false positive identifications was included in the 
-compPASS pipline. This function was optimized from the [source code][5].
-
-The input data.frame, *datInput*, should include:**idRun**, **idBait**, **idPrey** and **countPrey**.
-
-```{r}
-datScore <- CompPASS(datInput)
-```
+*   **Required columns:** `idRun`, `idBait`, `idPrey`, `countPrey`.
+*   **Usage:** `datScore <- CompPASS(datInput)`
 
 ### 2. DICE
+The **Dice coefficient** measures the similarity between prey pair-wise combinations. It is particularly useful for identifying preys that frequently co-occur across different runs.
 
-The Dice coefficient is used to score the interaction scores across prey pair-wise combinations, which was proposed by [(Bing Zhang et al., 2008)][9]
-
-The input data.frame, *datInput*, should include:**idRun** and **idPrey**.
-
-```{r}
-datScore <- DICE(datInput)
-```
+*   **Required columns:** `idRun`, `idPrey`.
+*   **Usage:** `datScore <- DICE(datInput)`
 
 ### 3. Hart
+Based on a **hypergeometric distribution error model**, this algorithm calculates the probability of finding a prey across different bait purifications by chance.
 
-Hart scoring algorithm is based on a hypergeometric distribution error model [(Hart et al., 2007)][6].
-
-The input data.frame, *datInput*, should include:**idRun** and **idPrey**.
-
-```{r}
-datScore <- Hart(datInput)
-```
-
+*   **Required columns:** `idRun`, `idPrey`.
+*   **Usage:** `datScore <- Hart(datInput)`
 
 ### 4. HGScore
+**HGScore** enhances the Hart hypergeometric model by incorporating **NSAF** (Normalized Spectral Abundance Factor), which accounts for protein length and abundance. It is designed based on a "matrix model."
 
-HGScore algorithm is based on a hypergeometric distribution error model [(Hart et al., 2007)][6] with incorporation of NSAF [(Zybailov, Boris, et al., 2006)][7]. This algorithm was first introduced to predict the protein complex network of Drosophila melanogaster [(Guruharsha, K. G., et al., 2011)][8]. This scoring algorithm was based on matrix model. 
+*   **Required columns:** `idRun`, `idPrey`, `countPrey`, `lenPrey`.
+*   **Usage:** `datScore <- HG(datInput)`
 
-The input data.frame, *datInput*, should include:**idRun**, **idPrey**, **countPrey** and **lenPrey**.
+### 5. PE (Prey Essentiality)
+The **PE score** incorporates both spoke and matrix models to calculate an interaction score based on the frequency and exclusivity of prey identifications.
 
-```{r}
-datScore <- HG(datInput)
+*   **Required columns:** `idRun`, `idBait`, `idPrey`.
+*   **Usage:** `datScore <- PE(datInput)`
+
+---
+
+## Quick Start
+
+```r
+library(SMAD)
+
+# Load example data
+data(TestDataInput)
+
+# Run CompPASS scoring
+results <- CompPASS(TestDataInput)
+
+# View top-scoring interactions based on WD-score
+head(results[order(results$WD, decreasing = TRUE), ])
 ```
-
-### 5. PE
-PE incorporated both spoke and matrix model as repored in [(Sean R. Collins, et al., 2007)][10].
-
-The input data.frame, *datInput*, should include:**idRun**, **idBait** and **idPrey**.
-
-```{r}
-datScore <- PE(datInput)
-```
-
-
 
 ## License
+Released under the [MIT License](https://opensource.org/licenses/MIT).  
+© [Qingzhou Zhang](https://github.com/zqzneptune)
 
-MIT @ Qingzhou Zhang
-
-[1]: https://doi.org/10.1016/j.cell.2009.04.042
-[2]: http://besra.hms.harvard.edu/ipmsmsdbs/cgi-bin/tutorial.cgi
-[3]: https://doi.org/10.1016/j.cell.2015.06.043
-[4]: https://www.nature.com/articles/nature22366
-[5]: https://github.com/dnusinow/cRomppass
-[6]: https://doi.org/10.1186/1471-2105-8-236
-[7]: https://doi.org/10.1021/pr060161n
-[8]: https://doi.org/10.1016/j.cell.2011.08.047
-[9]: https://doi.org/10.1093/bioinformatics/btn036
-[10]: https://doi.org/10.1074/mcp.M600381-MCP200
+## References
+1.  **CompPASS:** [Sowa et al., 2009 (Cell)](https://doi.org/10.1016/j.cell.2009.04.042)
+2.  **BioPlex:** [Huttlin et al., 2015 (Cell)](https://doi.org/10.1016/j.cell.2015.06.043)
+3.  **Hart Scoring:** [Hart et al., 2007 (BMC Bioinformatics)](https://doi.org/10.1186/1471-2105-8-236)
+4.  **HGScore:** [Guruharsha et al., 2011 (Cell)](https://doi.org/10.1016/j.cell.2011.08.047)
+5.  **DICE:** [Zhang et al., 2008 (Bioinformatics)](https://doi.org/10.1093/bioinformatics/btn036)
+6.  **PE Score:** [Collins et al., 2007 (MCP)](https://doi.org/10.1074/mcp.M600381-MCP200)

@@ -1,7 +1,7 @@
 Package: SMAD
 Type: Package
 Title: Statistical Modelling of AP-MS Data (SMAD)
-Version: 1.27.1
+Version: 1.27.7
 Authors@R: 
     person(given = "Qingzhou",
            family = "Zhang",
@@ -26,7 +26,7 @@ LinkingTo: Rcpp
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.3.3
 Suggests: 
     knitr,
     rmarkdown,
