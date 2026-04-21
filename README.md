@@ -1,7 +1,6 @@
 # SMAD: Statistical Modelling of AP-MS Data
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![R-CMD-check](https://github.com/zqzneptune/SMAD/workflows/R-CMD-check/badge.svg)](https://github.com/zqzneptune/SMAD/actions)
 
 **SMAD** is an R package designed for the statistical analysis of Affinity Purification–Mass Spectrometry (AP-MS) data. It implements several widely-used algorithms to compute confidence scores, helping researchers distinguish *bona fide* protein-protein interactions (PPI) from non-specific background noise.
 
