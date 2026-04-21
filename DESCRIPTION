@@ -1,7 +1,7 @@
 Package: SMAD
 Type: Package
 Title: Statistical Modelling of AP-MS Data (SMAD)
-Version: 1.27.8
+Version: 1.27.9
 Authors@R: 
     person(given = "Qingzhou",
            family = "Zhang",

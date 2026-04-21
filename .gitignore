@@ -11,3 +11,5 @@ src/*.dll
 *.Rproj
 /doc/
 /Meta/
+*.Rcheck
+*.tar.gz
