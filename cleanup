@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Clean up object files and shared libraries
+rm -f *.o *.so *.dll
+rm -f RcppExports.cpp
