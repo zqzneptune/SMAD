@@ -8,14 +8,4 @@ inst/doc
 src/*.o
 src/*.so
 src/*.dll
-*.tar.gz
-*.pdf
-*.Rcheck
-*.BiocCheck
-/doc/
-/Meta/
 *.Rproj
-src/*.o
-src/*.so
-src/**/*.o
-src/**/*.so

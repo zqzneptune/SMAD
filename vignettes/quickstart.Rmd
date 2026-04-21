@@ -1,5 +1,5 @@
 ---
-title: "1. Introduction to SMAD"
+title: "SMAD Quick Start"
 author: 
 - name: "Qingzhou (Johnson) Zhang"
   email: zqzneptune@hotmail.com
@@ -9,7 +9,7 @@ output:
   BiocStyle::html_document:
     toc_float: true
 vignette: >
-  %\VignetteIndexEntry{1. Introduction to SMAD}
+  %\VignetteIndexEntry{SMAD Quick Start}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,122 +17,98 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  fig.width = 7,
-  fig.height = 5
+  comment = "#>"
 )
 ```
 
 # Introduction
+This R package implements statistical modelling of affinity purification–mass 
+spectrometry (AP-MS) data to compute confidence scores to identify *bona fide* 
+protein-protein interactions (PPI).
 
-The `SMAD` (Statistical Modelling of AP-MS Data) package is designed to process Affinity Purification-Mass Spectrometry (AP-MS) data. Its primary goal is to compute confidence scores that help researchers distinguish true protein-protein interactions (PPI) from non-specific background contaminants.
+# Prepare Input Data
+Prepare input data into the dataframe *datInput* with the following format:
 
-In a typical AP-MS experiment, many proteins might be identified, but only a fraction are *bona fide* interactors. `SMAD` implements several validated statistical models to assign probability scores to these interactions.
+|idRun|idBait|idPrey|countPrey|lenPrey|
+|-----|:----:|:----:|:-------:|:-------:|
+|AP-MS run ID|Bait ID|Prey ID|Prey peptide count|Prey protein length|
 
-# Installation
 
-You can install the `SMAD` package from Bioconductor using the following command:
-
-```r
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("SMAD")
-```
-
-# Preparing Input Data
-
-`SMAD` requires input data as a dataframe. The standard format includes identifiers for the experiment run, the bait protein, the prey protein, and quantitative measurements (like spectral counts and protein length).
-
-## Example Dataset
-
-We provide a sample dataset `TestDatInput`, which is a subset of the BioPlex 2.0 data focusing on apoptosis-related proteins.
-
-```{r prepare_input}
+```{r}
 library(SMAD)
 data("TestDatInput")
 head(TestDatInput)
 ```
 
-The columns required for most scoring functions are:
+The test data is subset from the unfiltered BioPlex 2.0 data, which consists of
+apoptosis proteins as baits.
 
-| Column Name | Description |
-|:---|:---|
-| `idRun` | Unique ID for the AP-MS experiment run |
-| `idBait` | Identifier for the bait protein used in the pull-down |
-| `idPrey` | Identifier for the identified prey protein |
-| `countPrey` | Quantitative measure (e.g., peptide or spectral counts) |
-| `lenPrey` | Length of the prey protein (used for normalization) |
+# Methods
 
-# Scoring Protein Interactions
+## CompPASS
 
-`SMAD` offers multiple scoring algorithms. This guide focuses on two popular methods: **CompPASS** and **HGScore**.
+Comparative Proteomic Analysis Software Suite (CompPASS) is based on spoke 
+model. This algorithm was developed by Dr. Mathew Sowa for defining the human 
+deubiquitinating enzyme interaction landscape [(Sowa, Mathew E., et al., 
+2009)][1]. The implementation of this 
+algorithm was inspired by Dr. Sowa's [online tutorial][2]. 
+The output includes Z-score, S-score, D-score and WD-score. In its 
+implementation in BioPlex 1.0 [(Huttlin, Edward L., et al., 2015)][3] and 
+BioPlex 2.0 [(Huttlin, Edward L., et al., 2017)][4], a naive 
+Bayes classifier that learns to distinguish true interacting proteins from 
+non-specific background and false positive identifications was included in the 
+compPASS pipline. This function was optimized from the [source code][5].
 
-## CompPASS (Comparative Proteomic Analysis Software Suite)
-
-CompPASS is a "spoke model" algorithm that identifies high-confidence interactors by comparing occurrences across a large number of experiments. It was originally developed by [Sowa et al. (2009)][1] and widely used in the BioPlex projects.
-
-The output includes several metrics, with the **WD-score** (Weighted D-score) being the most commonly used for ranking.
-
-```{r compPASS_score}
-# Run CompPASS scoring
+```{r echo=TRUE, message=FALSE, warning=FALSE}
 scoreCompPASS <- CompPASS(TestDatInput)
-
-# View the top results
-head(scoreCompPASS[order(scoreCompPASS$scoreWD, decreasing = TRUE), ])
+head(scoreCompPASS)
 ```
 
-We can visualize the distribution of scores to see the separation of high-confidence interactors:
+Based on the scores, bait-prey interactions could be ranked and ready for downstream analyses.
 
-```{r compPASS_plot, echo=TRUE}
-par(mfrow = c(1, 1))
-plot(sort(scoreCompPASS$scoreWD, decreasing = TRUE), 
-     pch = 20, col = "royalblue",
-     xlab = "Ranked Interactions", 
-     ylab = "WD-score",
-     main = "CompPASS WD-score Distribution")
-abline(h = mean(scoreCompPASS$scoreWD) + 2 * sd(scoreCompPASS$scoreWD), 
-       col = "red", lty = 2)
-legend("topright", legend = "Mean + 2SD", col = "red", lty = 2)
+```{r CompPASS output figure, echo=FALSE, fig.height=7, fig.width=7, message=FALSE, warning=FALSE, paged.print=FALSE}
+par(mfrow = c(2, 2))
+plot(sort(scoreCompPASS$scoreZ, decreasing = TRUE), pch = 16,
+     xlab = "Ranked bait-prey interactions",
+     ylab = "Z-score")
+plot(sort(scoreCompPASS$scoreS, decreasing = TRUE), pch = 16,
+     xlab = "Ranked bait-prey interactions",
+     ylab = "S-score")
+plot(sort(scoreCompPASS$scoreD, decreasing = TRUE), pch = 16,
+     xlab = "Ranked bait-prey interactions",
+     ylab = "D-score")
+plot(sort(scoreCompPASS$scoreWD, decreasing = TRUE), pch = 16,
+     xlab = "Ranked bait-prey interactions",
+     ylab = "WD-score")
+
 ```
 
-## HGScore (Hypergeometric Score)
 
-HGScore is based on a hypergeometric distribution error model [(Hart et al., 2007)][6], incorporating Normalized Spectral Abundance Factor (NSAF) to account for protein length. Unlike CompPASS, HGScore can incorporate a "matrix model" perspective, often leading to a larger number of inferred interactions.
+## HGScore
 
-```{r hg_score}
-# Run HG scoring
+HGScore Scoring algorithm based on a hypergeometric distribution error model 
+[(Hart et al., 2007)][6] with incorporation of 
+NSAF [(Zybailov, Boris, et al., 2006)][7]. This algorithm was first introduced 
+to predict the protein complex network of Drosophila melanogaster 
+[(Guruharsha, K. G., et al., 2011)][8]. This scoring algorithm was based on
+matrix model. Unlike CompPASS, we need protein length for each prey in 
+the additional column.
+
+```{r}
 scoreHG <- HG(TestDatInput)
-
-# View the top results
-head(scoreHG[order(scoreHG$HG, decreasing = TRUE), ])
+head(scoreHG)
 ```
 
-Visualizing the HGScore distribution:
+```{r HG output figure, echo=FALSE, fig.height=7, fig.width=7, message=FALSE, warning=FALSE, paged.print=FALSE}
 
-```{r hg_plot, echo=TRUE}
-plot(sort(scoreHG$HG, decreasing = TRUE), 
-     pch = 20, col = "darkorange",
-     xlab = "Ranked Interactions", 
-     ylab = "HGscore",
-     main = "HGScore Distribution")
+plot(sort(scoreHG$HG, decreasing = TRUE), pch = 16,
+     xlab = "Ranked prey-prey interactions",
+     ylab = "HGscore")
+
 ```
 
-# Advanced Scoring and Further Reading
+Noted that HG scoring implements matrix models which leads to significant increase of inferred protein-protein interactions.
 
-While CompPASS and HGScore are excellent starting points, `SMAD` includes several other advanced scoring methods such as:
-
-- **SAINTexpress**: A widely adopted Bayesian framework for AP-MS.
-- **PE (Purification Enrichment)**: A Bayesian classifier combining spoke and matrix models.
-- **DICE and Hart**: Specialized scores for prey-prey interaction affinity.
-
-For a detailed showcase of all these functions, please refer to the **Scoring Functions in SMAD** vignette:
-
-```r
-vignette("scoring_functions", package = "SMAD")
-```
-
-# References
 
 [1]: https://doi.org/10.1016/j.cell.2009.04.042
 [2]: http://besra.hms.harvard.edu/ipmsmsdbs/cgi-bin/tutorial.cgi
@@ -142,9 +118,3 @@ vignette("scoring_functions", package = "SMAD")
 [6]: https://doi.org/10.1186/1471-2105-8-236
 [7]: https://doi.org/10.1021/pr060161n
 [8]: https://doi.org/10.1016/j.cell.2011.08.047
-
-# Session Information
-
-```{r sessionInfo}
-sessionInfo()
-```

@@ -26,8 +26,8 @@
 #' @importFrom magrittr %>%
 #' @importFrom stats phyper
 #' @importFrom RcppAlgos comboGeneral
-#' @importFrom utils unstack
 #' @useDynLib SMAD
+#' @exportPattern '^[[:alpha:]]+'
 #' @export
 #' @examples
 #' data(TestDatInput)
@@ -36,7 +36,20 @@
 
 
 Hart <- function(datInput) {
-    .Hart_validate_input(datInput)
+    colInput <-
+        c("idRun", "idPrey")
+    
+    if(!is.data.frame(datInput)){
+        stop("Input data should be data.frame")
+    }
+    
+    if(!all(colInput %in% colnames(datInput))){
+        missingCol <-
+            setdiff(colInput, 
+                    colnames(datInput)[match(colInput, colnames(datInput))])
+        stop("Input data missing: ", paste(missingCol, collapse = ", "))
+    }
+    
     
     . <- NULL
     idRun <- NULL
@@ -52,58 +65,45 @@ Hart <- function(datInput) {
     totTn <- NULL
     TnB <- NULL
     
-    # Generate PPI counts
-    datCnt <- unique(datInput[, c("idRun", "idPrey")])
-    datPPI <- .Hart_generate_ppi_counts(datCnt)
-    
-    # Scoring
-    scorePPI <- .Hart_scoring(datPPI, datCnt)
-    return(scorePPI)
-}
-
-.Hart_validate_input <- function(datInput) {
-    colInput <- c("idRun", "idPrey")
-    if(!is.data.frame(datInput)){
-        stop("Input data should be data.frame")
-    }
-    if(!all(colInput %in% colnames(datInput))){
-        missingCol <- setdiff(colInput, colnames(datInput))
-        stop("Input data missing: ", paste(missingCol, collapse = ", "))
-    }
-}
-
-.Hart_generate_ppi_counts <- function(datCnt) {
-    listCnt <- unstack(datCnt[, c("idPrey", "idRun")])
-    listPPI <- lapply(listCnt, function(prt){
-        if(length(prt) > 1){
-            sPrt <- sort(prt)
-            ps <- comboGeneral(sPrt, 2)
-            return(paste(ps[, 1], ps[, 2], sep = "~"))
-        }else{
-            return(NA)
-        }
-    })
-    datPPI <- as.data.frame(table(unlist(listPPI)), stringsAsFactors = FALSE)
-    colnames(datPPI) <- c("PPI", "Freq")
-    return(datPPI)
-}
-
-.Hart_scoring <- function(datPPI, datCnt) {
-    tnInteractor <- datCnt %>% 
+    datCnt <-
+        unique(datInput[, c("idRun", "idPrey")])
+    tnInteractor <- 
+        datCnt %>% 
         group_by(`idPrey`) %>% 
-        summarise(`Tn` = n(), .groups = "drop")
-    
-    tnA_map <- tnInteractor
-    colnames(tnA_map) <- c("InteractorA", "TnA")
-    tnB_map <- tnInteractor
-    colnames(tnB_map) <- c("InteractorB", "TnB")
-    
-    scorePPI <- datPPI %>% 
+        summarise(`Tn` = n())
+    tnA <-
+        tnInteractor
+    colnames(tnA) <-
+        c("InteractorA", "TnA")
+    tnB <-
+        tnInteractor
+    colnames(tnB) <-
+        c("InteractorB", "TnB")
+    listCnt <-
+        unstack(datCnt[, c("idPrey", "idRun")])
+    listPPI <-
+        lapply(listCnt, function(prt){
+            if(length(prt) > 1){
+                sPrt <- 
+                    sort(prt)
+                ps <-
+                    comboGeneral(sPrt, 2)
+                return(paste(ps[, 1], ps[, 2], sep = "~"))
+            }else{
+                return(NA)
+            }
+        })
+    datPPI <-
+        as.data.frame(table(unlist(listPPI)), stringsAsFactors = FALSE)
+    colnames(datPPI) <-
+        c("PPI", "Freq")
+    scorePPI <- 
+        datPPI %>% 
         separate(data = ., col = "PPI",
                  into = c("InteractorA", "InteractorB"),
                  sep = "~", remove = FALSE) %>% 
-        left_join(., tnA_map, by = "InteractorA") %>% 
-        left_join(., tnB_map, by = "InteractorB") %>% 
+        left_join(., tnA, by = "InteractorA") %>% 
+        left_join(., tnB, by = "InteractorB") %>% 
         mutate(`totTn` = sum(tnInteractor$Tn)) %>% 
         mutate(`Hart` = -phyper(`Freq`, `TnA`, `totTn` - `TnB`, 
                                 `TnB`, lower.tail = FALSE, log.p = TRUE)) %>% 

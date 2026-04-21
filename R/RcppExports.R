@@ -9,11 +9,3 @@
     .Call('_SMAD_GetPPN', PACKAGE = 'SMAD', mat)
 }
 
-.SAINTexpress_int_impl <- function(inter_df, prey_df, bait_df, GO_df, f, R, L) {
-    .Call('_SMAD_SAINTexpress_int_impl', PACKAGE = 'SMAD', inter_df, prey_df, bait_df, GO_df, f, R, L)
-}
-
-.SAINTexpress_spc_impl <- function(inter_df, prey_df, bait_df, GO_df, f, R, L) {
-    .Call('_SMAD_SAINTexpress_spc_impl', PACKAGE = 'SMAD', inter_df, prey_df, bait_df, GO_df, f, R, L)
-}
-
