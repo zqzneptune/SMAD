@@ -1,7 +1,7 @@
 Package: SMAD
 Type: Package
 Title: Statistical Modelling of AP-MS Data (SMAD)
-Version: 1.27.7
+Version: 1.27.8
 Authors@R: 
     person(given = "Qingzhou",
            family = "Zhang",
@@ -13,7 +13,7 @@ Description: Assigning probability scores to protein interactions captured in
     protein-protein interactions. The output would facilitate non-specific 
     background removal as contaminants are commonly found in AP-MS data.
 Depends: 
-    R (>= 3.6.0),
+    R (>= 4.5.0),
     RcppAlgos
 Imports: 
     magrittr (>= 1.5),
@@ -25,7 +25,8 @@ Imports:
 LinkingTo: Rcpp
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
+URL: https://github.com/zqzneptune/SMAD
+BugReports: https://github.com/zqzneptune/SMAD/issues
 RoxygenNote: 7.3.3
 Suggests: 
     knitr,

@@ -1,7 +1,7 @@
 ---
 title: "SMAD Quick Start"
 author: 
-- name: "Qingzhou (Johnson) Zhang"
+- name: "Qingzhou Zhang"
   email: zqzneptune@hotmail.com
 date: "`r Sys.Date()`"
 package: SMAD
@@ -16,8 +16,8 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+     collapse = TRUE,
+     comment = "#>"
 )
 ```
 
@@ -34,7 +34,7 @@ Prepare input data into the dataframe *datInput* with the following format:
 |AP-MS run ID|Bait ID|Prey ID|Prey peptide count|Prey protein length|
 
 
-```{r}
+```{r load_data}
 library(SMAD)
 data("TestDatInput")
 head(TestDatInput)
@@ -59,28 +59,35 @@ Bayes classifier that learns to distinguish true interacting proteins from
 non-specific background and false positive identifications was included in the 
 compPASS pipline. This function was optimized from the [source code][5].
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r CompPASS_scoring, echo=TRUE, message=FALSE, warning=FALSE}
 scoreCompPASS <- CompPASS(TestDatInput)
 head(scoreCompPASS)
 ```
 
 Based on the scores, bait-prey interactions could be ranked and ready for downstream analyses.
 
-```{r CompPASS output figure, echo=FALSE, fig.height=7, fig.width=7, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r CompPASS_output_figure, echo=FALSE, fig.height=7, fig.width=7, message=FALSE, warning=FALSE, paged.print=FALSE}
 par(mfrow = c(2, 2))
-plot(sort(scoreCompPASS$scoreZ, decreasing = TRUE), pch = 16,
+plot(sort(scoreCompPASS$scoreZ, decreasing = TRUE),
+     pch = 16,
      xlab = "Ranked bait-prey interactions",
-     ylab = "Z-score")
-plot(sort(scoreCompPASS$scoreS, decreasing = TRUE), pch = 16,
+     ylab = "Z-score"
+)
+plot(sort(scoreCompPASS$scoreS, decreasing = TRUE),
+     pch = 16,
      xlab = "Ranked bait-prey interactions",
-     ylab = "S-score")
-plot(sort(scoreCompPASS$scoreD, decreasing = TRUE), pch = 16,
+     ylab = "S-score"
+)
+plot(sort(scoreCompPASS$scoreD, decreasing = TRUE),
+     pch = 16,
      xlab = "Ranked bait-prey interactions",
-     ylab = "D-score")
-plot(sort(scoreCompPASS$scoreWD, decreasing = TRUE), pch = 16,
+     ylab = "D-score"
+)
+plot(sort(scoreCompPASS$scoreWD, decreasing = TRUE),
+     pch = 16,
      xlab = "Ranked bait-prey interactions",
-     ylab = "WD-score")
-
+     ylab = "WD-score"
+)
 ```
 
 
@@ -94,17 +101,17 @@ to predict the protein complex network of Drosophila melanogaster
 matrix model. Unlike CompPASS, we need protein length for each prey in 
 the additional column.
 
-```{r}
+```{r HG_scoring}
 scoreHG <- HG(TestDatInput)
 head(scoreHG)
 ```
 
-```{r HG output figure, echo=FALSE, fig.height=7, fig.width=7, message=FALSE, warning=FALSE, paged.print=FALSE}
-
-plot(sort(scoreHG$HG, decreasing = TRUE), pch = 16,
+```{r HG_output_figure, echo=FALSE, fig.height=7, fig.width=7, message=FALSE, warning=FALSE, paged.print=FALSE}
+plot(sort(scoreHG$HG, decreasing = TRUE),
+     pch = 16,
      xlab = "Ranked prey-prey interactions",
-     ylab = "HGscore")
-
+     ylab = "HGscore"
+)
 ```
 
 Noted that HG scoring implements matrix models which leads to significant increase of inferred protein-protein interactions.

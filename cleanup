@@ -3,3 +3,7 @@
 # Clean up object files and shared libraries
 rm -f *.o *.so *.dll
 rm -f RcppExports.cpp
+
+rm -rf ./docs
+rm -rf ./SMAD.Rcheck
+rm -rf ./doc

@@ -54,7 +54,14 @@
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/zqzneptune/SMAD/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
+
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -69,13 +76,13 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>SMAD Quick Start</h1>
                         <h4 data-toc-skip class="author">Qingzhou
-(Johnson) Zhang</h4>
+Zhang</h4>
                   <a class="author_email" href="mailto:#"></a><a href="mailto:zqzneptune@hotmail.com" class="email">zqzneptune@hotmail.com</a>
       
                   
             <h4 data-toc-skip class="date">2026-04-21</h4>
       
-
+      <small class="dont-index">Source: <a href="https://github.com/zqzneptune/SMAD/blob/HEAD/vignettes/quickstart.Rmd" class="external-link"><code>vignettes/quickstart.Rmd</code></a></small>
       <div class="hidden name"><code>quickstart.Rmd</code></div>
 
     </div>
@@ -111,7 +118,7 @@ following format:</p>
 </tr></tbody>
 </table>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">SMAD</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/zqzneptune/SMAD" class="external-link">SMAD</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading required package: RcppAlgos</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"TestDatInput"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">TestDatInput</span><span class="op">)</span></span>
@@ -155,7 +162,7 @@ function was optimized from the <a href="https://github.com/dnusinow/cRomppass" 
 <span><span class="co">#&gt; 6  AIFM3   CCT4     20 2.8371693  9.013878  9.013878       0 0.2135599</span></span></code></pre></div>
 <p>Based on the scores, bait-prey interactions could be ranked and ready
 for downstream analyses.</p>
-<p><img src="quickstart_files/figure-html/CompPASS%20output%20figure-1.png" class="r-plt" alt="" width="672"></p>
+<p><img src="quickstart_files/figure-html/CompPASS_output_figure-1.png" class="r-plt" alt="" width="672"></p>
 </div>
 <div class="section level3">
 <h3 id="hgscore">HGScore<a class="anchor" aria-label="anchor" href="#hgscore"></a>
@@ -178,7 +185,7 @@ column.</p>
 <span><span class="co">#&gt; 4         A2M        AHCY     1 122 2349  A2M~AHCY 477317 2.098700</span></span>
 <span><span class="co">#&gt; 5         A2M       AHSA1     1 122  386 A2M~AHSA1 477317 5.399179</span></span>
 <span><span class="co">#&gt; 6         A2M       AKAP8     1 122  317 A2M~AKAP8 477317 5.782404</span></span></code></pre></div>
-<p><img src="quickstart_files/figure-html/HG%20output%20figure-1.png" class="r-plt" alt="" width="672"></p>
+<p><img src="quickstart_files/figure-html/HG_output_figure-1.png" class="r-plt" alt="" width="672"></p>
 <p>Noted that HG scoring implements matrix models which leads to
 significant increase of inferred protein-protein interactions.</p>
 </div>

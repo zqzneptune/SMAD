@@ -27,7 +27,6 @@
 #' @importFrom stats phyper
 #' @importFrom RcppAlgos comboGeneral
 #' @useDynLib SMAD
-#' @exportPattern '^[[:alpha:]]+'
 #' @export
 #' @examples
 #' data(TestDatInput)

@@ -28,7 +28,6 @@
 #' @importFrom utils unstack
 #' @importFrom RcppAlgos comboGeneral
 #' @useDynLib SMAD
-#' @exportPattern '^[[:alpha:]]+'
 #' @export
 #' @examples
 #' data(TestDatInput)

@@ -42,7 +42,6 @@
 #' @import Rcpp
 #' @importFrom Rcpp evalCpp
 #' @useDynLib SMAD
-#' @exportPattern '^[[:alpha:]]+'
 #' @export
 #' @examples
 #' data(TestDatInput)
