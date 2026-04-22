@@ -1,0 +1,63 @@
+# Define global variables to avoid R CMD check notes about "no visible binding for global variable"
+# and "no visible global function definition".
+# This is particularly relevant for data.table and magrittr/dplyr usage.
+
+if (getRversion() >= "2.15.1") {
+  utils::globalVariables(
+    c(
+      ".",
+      ".N",
+      ":=",
+      "BP",
+      "Freq",
+      "PB",
+      "PPI",
+      "cntBP",
+      "cntBait",
+      "cntPry",
+      "f",
+      "f1",
+      "f2",
+      "finalM",
+      "finalS",
+      "idBait",
+      "idPrey",
+      "idRun",
+      "obsPry",
+      "p",
+      "pry1",
+      "pry2",
+      "s",
+      "sSum",
+      "countPrey",
+      "MaxTSC",
+      "nBait",
+      "f_sum",
+      "AvePSM",
+      "MeanDiff",
+      "Mean",
+      "SD",
+      "WD_inner",
+      "WD_raw",
+      "WD_raw.factor",
+      "Tn",
+      "UniprotID",
+      "tnA",
+      "tnB",
+      "NMinTn",
+      "ppiTN",
+      "totTn",
+      "lenPrey",
+      "NormalSpec",
+      "SumNS",
+      "NSAF",
+      "NormalNSAF",
+      "HG",
+      "InteractorA",
+      "InteractorB",
+      "TnA",
+      "TnB",
+      "minTn"
+    )
+  )
+}

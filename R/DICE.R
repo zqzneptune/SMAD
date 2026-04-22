@@ -42,11 +42,6 @@ DICE <- function(datInput) {
                     colnames(datInput)[match(colInput, colnames(datInput))])
         stop("Input data missing: ", paste(missingCol, collapse = ", "))
     }
-    . <- NULL
-    idRun <- NULL
-    countPrey <- NULL
-    Tn <- NULL
-    s <- NULL
     datCnt <-
         unique(datInput[, c("idRun", "idPrey")])
     datCnt[, "Tn"] <- 1

@@ -63,24 +63,6 @@ HG <- function(datInput) {
                     colnames(datInput)[match(colInput, colnames(datInput))])
         stop("Input data missing: ", paste(missingCol, collapse = ", "))
     }
-    . <- NULL
-    idRun <- NULL
-    countPrey <- NULL
-    lenPrey <- NULL
-    NormalSpec <- NULL
-    SumNS <- NULL
-    NSAF <- NULL
-    NormalNSAF <- NULL
-    Tn <- NULL
-    UniprotID <- NULL
-    tnA <- NULL
-    tnB <- NULL
-    NMinTn <- NULL
-    HG <- NULL
-    ppiTN <- NULL
-    s <- NULL
-    InteractorA <- NULL
-    InteractorB <- NULL
     datCnt <- 
         datInput %>% 
         mutate(`NormalSpec` = `countPrey`/`lenPrey`) %>% 

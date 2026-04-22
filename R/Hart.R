@@ -26,6 +26,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom stats phyper
 #' @importFrom RcppAlgos comboGeneral
+#' @importFrom utils unstack
 #' @useDynLib SMAD
 #' @export
 #' @examples
@@ -50,19 +51,6 @@ Hart <- function(datInput) {
     }
     
     
-    . <- NULL
-    idRun <- NULL
-    idPrey <- NULL
-    Tn <- NULL
-    UniprotID <- NULL
-    tnA <- NULL
-    tnB <- NULL
-    NMinTn <- NULL
-    ppiTN <- NULL
-    Freq <- NULL
-    TnA <- NULL
-    totTn <- NULL
-    TnB <- NULL
     
     datCnt <-
         unique(datInput[, c("idRun", "idPrey")])

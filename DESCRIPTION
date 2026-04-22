@@ -1,40 +1,37 @@
-Package: SMAD
 Type: Package
+Package: SMAD
 Title: Statistical Modelling of AP-MS Data (SMAD)
-Version: 1.27.9
+Version: 1.27.10
 Authors@R: 
-    person(given = "Qingzhou",
-           family = "Zhang",
-           role = c("aut", "cre"),
-           email = "zqzneptune@hotmail.com",
+    person("Qingzhou", "Zhang", , "zqzneptune@hotmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-9540-2624"))
-Description: Assigning probability scores to protein interactions captured in 
-    affinity purification mass spectrometry (AP-MS) expriments to infer 
-    protein-protein interactions. The output would facilitate non-specific 
+Description: Assigning probability scores to protein interactions captured
+    in affinity purification mass spectrometry (AP-MS) expriments to infer
+    protein-protein interactions. The output would facilitate non-specific
     background removal as contaminants are commonly found in AP-MS data.
+License: MIT + file LICENSE
+URL: https://github.com/zqzneptune/SMAD
+BugReports: https://github.com/zqzneptune/SMAD/issues
 Depends: 
     R (>= 4.5.0),
     RcppAlgos
 Imports: 
+    data.table,
+    dplyr,
     magrittr (>= 1.5),
-    dplyr, 
-    stats, 
+    Rcpp (>= 1.0.0),
+    stats,
     tidyr,
-    utils,
-    Rcpp (>= 1.0.0)
-LinkingTo: Rcpp
-License: MIT + file LICENSE
-Encoding: UTF-8
-URL: https://github.com/zqzneptune/SMAD
-BugReports: https://github.com/zqzneptune/SMAD/issues
-RoxygenNote: 7.3.3
+    utils
 Suggests: 
+    BiocStyle,
     knitr,
     rmarkdown,
-    testthat,
-    BiocStyle
-VignetteBuilder: knitr
-biocViews: 
-    MassSpectrometry, 
-    Proteomics,
-    Software
+    testthat
+LinkingTo: 
+    Rcpp
+VignetteBuilder: 
+    knitr
+biocViews: MassSpectrometry, Proteomics, Software
+Encoding: UTF-8
+RoxygenNote: 7.3.3

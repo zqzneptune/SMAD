@@ -60,21 +60,6 @@ CompPASS <- function(datInput){
         stop("Input data missing: ", paste(missingCol, collapse = ", "))
     }
     
-    . <- NULL
-    idPrey <- NULL
-    idBait <- NULL
-    idRun <- NULL
-    countPrey <- NULL
-    MaxTSC <- NULL
-    nBait <- NULL
-    f_sum <- NULL
-    AvePSM <- NULL
-    MeanDiff <- NULL
-    Mean <- NULL
-    SD <- NULL
-    WD_inner <- NULL
-    WD_raw <- NULL
-    WD_raw.factor <- NULL
     
     # Use total number of baits instead of actual AP-MS runs as
     # total number of experiments.
@@ -166,7 +151,7 @@ CompPASS <- function(datInput){
         mutate(`WD_raw` = sqrt(`AvePSM` * (`WD_inner`^`p`)))
     
     # Weighted WD score
-    i = !(is.na(output$WD_raw) | is.nan(output$WD_raw))
+    i <- !(is.na(output$WD_raw) | is.nan(output$WD_raw))
     WD_raw <-
         output$WD_raw[i]
     WD_raw.factor <-
