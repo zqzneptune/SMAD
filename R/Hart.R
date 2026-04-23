@@ -74,7 +74,7 @@ Hart <- function(datInput) {
                 sPrt <- 
                     sort(prt)
                 ps <-
-                    comboGeneral(sPrt, 2)
+                    RcppAlgos::comboGeneral(sPrt, 2, nThreads = 1)
                 return(paste(ps[, 1], ps[, 2], sep = "~"))
             }else{
                 return(NA)

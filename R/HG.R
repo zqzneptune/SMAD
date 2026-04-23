@@ -79,7 +79,7 @@ HG <- function(datInput) {
     g <- t(g)
     colnames(g) <- d$idPrey
     pps <- 
-        comboGeneral(colnames(g), 2)
+        RcppAlgos::comboGeneral(colnames(g), 2, nThreads = 1)
     PPN <- .GetPPN(g)
     CppPPN <- PPN[lower.tri(PPN, diag = FALSE)]
     datPPI <- data.frame(cbind(pps[CppPPN != 0, ], 

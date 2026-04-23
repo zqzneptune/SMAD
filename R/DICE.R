@@ -53,7 +53,7 @@ DICE <- function(datInput) {
     datDice <-
         .GetDICE(t(g))
     pps <- 
-        comboGeneral(d$idPrey, 2)
+        RcppAlgos::comboGeneral(d$idPrey, 2, nThreads = 1)
     ppDice <- 
         datDice[lower.tri(datDice, diag = FALSE)]
     datPPI <- 

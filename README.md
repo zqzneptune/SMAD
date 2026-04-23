@@ -75,7 +75,7 @@ Based on a **hypergeometric distribution error model**, this algorithm calculate
 *   **Required columns:** `idRun`, `idPrey`, `countPrey`, `lenPrey`.
 *   **Usage:** `datScore <- HG(datInput)`
 
-### 5. PE (Prey Essentiality)
+### 5. PE (Purification Enrichment)
 The **PE score** incorporates both spoke and matrix models to calculate an interaction score based on the frequency and exclusivity of prey identifications.
 
 *   **Required columns:** `idRun`, `idBait`, `idPrey`.

@@ -104,7 +104,7 @@ PE <- function(datInput, rBait = 0.37, cntPseudo = 1) {
         if (length(preys) < 2) {
             return(character(0))
         }
-        combos <- RcppAlgos::comboGeneral(sort(preys), 2)
+        combos <- RcppAlgos::comboGeneral(sort(preys), 2, nThreads = 1)
         paste(combos[, 1], combos[, 2], sep = "~")
     })
 

@@ -1,7 +1,7 @@
 Type: Package
 Package: SMAD
 Title: Statistical Modelling of AP-MS Data (SMAD)
-Version: 1.27.10
+Version: 1.27.11
 Authors@R: 
     person("Qingzhou", "Zhang", , "zqzneptune@hotmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-9540-2624"))
@@ -13,13 +13,13 @@ License: MIT + file LICENSE
 URL: https://github.com/zqzneptune/SMAD
 BugReports: https://github.com/zqzneptune/SMAD/issues
 Depends: 
-    R (>= 4.5.0),
-    RcppAlgos
+    R (>= 4.5.0)
 Imports: 
     data.table,
     dplyr,
     magrittr (>= 1.5),
     Rcpp (>= 1.0.0),
+    RcppAlgos,
     stats,
     tidyr,
     utils
